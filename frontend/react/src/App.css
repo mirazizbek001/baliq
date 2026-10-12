@@ -290,12 +290,13 @@ input:-webkit-autofill, textarea:-webkit-autofill {
 .sidebar-label { opacity: 0; width: 0; overflow: hidden; white-space: nowrap; transition: opacity .16s ease, width .2s ease; }
 .ig-sidebar:hover .sidebar-label { opacity: 1; width: 160px; }
 .app-page-shell {
+  position: relative;
+  z-index: 1;
   min-width: 0;
   max-width: 100%;
   min-height: 100dvh;
   margin-left: 76px;
   overflow-x: clip;
-  background: var(--bb-bg);
 }
 .ig-sidebar:hover ~ .app-page-shell { margin-left: 76px; }
 header.md\:hidden, .mobile-bottom-nav { background: var(--bb-deep) !important; border-color: var(--bb-line) !important; }
