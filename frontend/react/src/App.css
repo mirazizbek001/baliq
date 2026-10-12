@@ -279,6 +279,10 @@ input:-webkit-autofill, textarea:-webkit-autofill {
 
 /* Yon panel */
 .ig-sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  height: 100vh;
+  height: 100dvh;
   width: 76px;
   overflow: hidden;
   background: var(--bb-deep) !important;
@@ -299,6 +303,13 @@ input:-webkit-autofill, textarea:-webkit-autofill {
   overflow-x: clip;
 }
 .ig-sidebar:hover ~ .app-page-shell { margin-left: 76px; }
+@media (min-width: 768px) {
+  .app-page-shell {
+    height: 100dvh;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+  }
+}
 header.md\:hidden, .mobile-bottom-nav { background: var(--bb-deep) !important; border-color: var(--bb-line) !important; }
 
 /* Kartalar */
@@ -466,12 +477,11 @@ header.md\:hidden, .mobile-bottom-nav { background: var(--bb-deep) !important; b
   animation: bb-bubbles-rise 22s linear infinite;
 }
 #root > * { position: relative; }
-#root > *:not(.sea-life-layer):not(script):not(style) {
+#root > *:not(.sea-life-layer):not(script):not(style):not(.app-shell) {
   position: relative;
   z-index: 1;
   animation: bb-soft-enter .42s ease both;
 }
-#root > .app-shell { animation: none; }
 @media (prefers-reduced-motion: reduce) {
   .sea-life-layer, #root::before,
   #root > *:not(script):not(style) {
