@@ -47,12 +47,21 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-local-dev-change-me')
 # Railway provides these environment variables at runtime.
 DEBUG = os.getenv('DEBUG', '0').lower() in {'1', 'true', 'yes', 'on'}
 
+
 def _csv(name, default=''):
     return [item.strip() for item in os.getenv(name, default).split(',') if item.strip()]
 
+
+RAILWAY_PUBLIC_DOMAIN = os.getenv('RAILWAY_PUBLIC_DOMAIN', '').strip()
+_is_production_like = bool(
+    RAILWAY_PUBLIC_DOMAIN
+    or os.getenv('RAILWAY_ENVIRONMENT', '').strip()
+    or os.getenv('RAILWAY_PROJECT_ID', '').strip()
+    or os.getenv('RAILWAY_SERVICE_ID', '').strip()
+)
+
 ALLOWED_HOSTS = _csv('ALLOWED_HOSTS', '*')
 CSRF_TRUSTED_ORIGINS = _csv('CSRF_TRUSTED_ORIGINS', 'http://localhost:5173,http://127.0.0.1:5173,http://localhost:8000,http://127.0.0.1:8000')
-RAILWAY_PUBLIC_DOMAIN = os.getenv('RAILWAY_PUBLIC_DOMAIN', '').strip()
 if RAILWAY_PUBLIC_DOMAIN:
     CSRF_TRUSTED_ORIGINS.append(f'https://{RAILWAY_PUBLIC_DOMAIN}')
 CORS_ALLOWED_ORIGINS = _csv('CORS_ALLOWED_ORIGINS', 'http://localhost:5173,http://127.0.0.1:5173')
@@ -67,6 +76,10 @@ CORS_ALLOW_CREDENTIALS = True
 # Railway proxy orqasida HTTPS to'g'ri aniqlansin
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
+SECURE_SSL_REDIRECT = not DEBUG and _is_production_like
+SECURE_HSTS_SECONDS = 31536000 if not DEBUG and _is_production_like else 0
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
 
 # Cookie transporti muhitga mos bo'lsin:
 # - lokal Vite (http://localhost:5173) -> Secure=False, aks holda Chrome session cookie'ni yubormaydi;
@@ -78,11 +91,7 @@ if _cookie_secure_env in {'1', 'true', 'yes', 'on'}:
 elif _cookie_secure_env in {'0', 'false', 'no', 'off'}:
     COOKIE_SECURE = False
 else:
-    COOKIE_SECURE = bool(
-    RAILWAY_PUBLIC_DOMAIN
-    or os.getenv('RAILWAY_ENVIRONMENT', '').strip()
-    or FRONTEND_URL.startswith('https://')
-)
+    COOKIE_SECURE = bool(_is_production_like or FRONTEND_URL.startswith('https://'))
 
 CSRF_COOKIE_SECURE = COOKIE_SECURE
 SESSION_COOKIE_SECURE = COOKIE_SECURE
@@ -238,8 +247,16 @@ STORAGES = {
     'staticfiles': {'BACKEND': 'whitenoise.storage.CompressedStaticFilesStorage'},
 }
 
-MAILERS = {
-    'default': {
-        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
-    },
-}
+_email_backend = os.getenv(
+    'EMAIL_BACKEND',
+    'django.core.mail.backends.smtp.EmailBackend' if os.getenv('EMAIL_HOST') else 'django.core.mail.backends.locmem.EmailBackend'
+)
+
+EMAIL_BACKEND = _email_backend
+EMAIL_HOST = os.getenv('EMAIL_HOST', '')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587')) if os.getenv('EMAIL_PORT', '').strip() else 587
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', '1').lower() in {'1', 'true', 'yes', 'on'}
+EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', '0').lower() in {'1', 'true', 'yes', 'on'}
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'noreply@localhost')
