@@ -176,7 +176,7 @@ function AppShell() {
       </aside>
 
       {!conversationOpen && pathname === "/" && (
-        <header className="flex h-14 items-center justify-between border-b border-neutral-200 bg-[#2a70d8] px-4 !border-[#6aa5f0] !bg-[#1450a8] md:hidden">
+        <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-neutral-200 bg-[#2a70d8] px-4 !border-[#6aa5f0] !bg-[#1450a8] md:hidden">
           <span className="flex items-center gap-2">
             <img src={brandLogo} alt="" className="h-8 w-8 rounded-lg" />
             <span className="text-xl font-extrabold tracking-tight text-[#ffd24d] !text-white">

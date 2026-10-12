@@ -373,25 +373,8 @@ export default function SeaLife() {
     return counts;
   }, {});
   const laneIndexes = {};
-  const heroFish = [
-    { x: 120, y: 120, width: 120, height: 75, forward: 1 },
-    { x: 460, y: 240, width: 118, height: 72, forward: -1 },
-    { x: 960, y: 150, width: 128, height: 80, forward: 1 },
-    { x: 1180, y: 370, width: 136, height: 84, forward: -1 },
-  ];
-
   return (
     <div className="sea-life-layer" aria-hidden="true">
-      {heroFish.map((fish, index) => (
-        <SeaCreature
-          key={`hero-fish-${index}`}
-          kind="fish"
-          index={index + 100}
-          laneIndex={0}
-          laneCount={1}
-          staticPosition={fish}
-        />
-      ))}
       {creatures.map((kind, index) => {
         const laneIndex = laneIndexes[kind] || 0;
         laneIndexes[kind] = laneIndex + 1;
