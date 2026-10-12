@@ -985,7 +985,7 @@ function PostCard({ p }) {
         <img
           src={p.image}
           alt=""
-          className="block max-h-[min(62dvh,760px)] w-full select-none object-contain"
+          className="block h-[min(62dvh,640px)] w-full select-none object-cover"
         />
         {heart && (
           <Heart
@@ -2321,7 +2321,6 @@ function HomeReelCard({ r }) {
   const [share, setShare] = useState(false);
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [heart, setHeart] = useState(false);
-  const [landscape, setLandscape] = useState(false);
   const video = useRef(null);
   useVideoAutoplay(video, muted, setMuted, 0.6, r.id);
   if (!u) return null;
@@ -2350,7 +2349,7 @@ function HomeReelCard({ r }) {
         </div>
       </div>
       <div
-        className={`relative max-h-[min(62dvh,640px)] w-full overflow-hidden bg-[#0f3f8c] sm:rounded-[3px] ${landscape ? "aspect-video" : "aspect-[4/5]"}`}
+        className="relative h-[min(62dvh,640px)] w-full overflow-hidden bg-[#0f3f8c] sm:rounded-[3px]"
         onDoubleClick={dbl}
       >
         <video
@@ -2360,11 +2359,6 @@ function HomeReelCard({ r }) {
           loop
           playsInline
           preload="metadata"
-          onLoadedMetadata={(e) =>
-            setLandscape(
-              e.currentTarget.videoWidth >= e.currentTarget.videoHeight,
-            )
-          }
           onPlay={() => setPaused(false)}
           onPause={() => setPaused(true)}
           onClick={(e) => {
