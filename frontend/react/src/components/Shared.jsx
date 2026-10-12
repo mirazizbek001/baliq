@@ -2316,22 +2316,12 @@ function CreateReel({ close }) {
 function HomeReelCard({ r }) {
   const { byId, me, A, open, db } = useC();
   const u = byId(r.userId);
-  const [muted, setMuted] = useReelMuted();
-  const [paused, setPaused] = useState(false);
   const [share, setShare] = useState(false);
   const [commentsOpen, setCommentsOpen] = useState(false);
-  const [heart, setHeart] = useState(false);
-  const video = useRef(null);
-  useVideoAutoplay(video, muted, setMuted, 0.6, r.id);
   if (!u) return null;
   const liked = r.likes.includes(me.id);
   const saved = (db.saved[me.id] || []).includes(r.id);
   const count = (r.comments || []).length;
-  const dbl = () => {
-    if (!liked) A.like(r.id, "reel");
-    setHeart(true);
-    setTimeout(() => setHeart(false), 700);
-  };
   return (
     <article className="ig-card mb-4 pb-4">
       <div className="flex items-center gap-2 py-3">
@@ -2348,48 +2338,25 @@ function HomeReelCard({ r }) {
           <ReelMenu r={r} size={22} showOpen />
         </div>
       </div>
-      <div
-        className="relative flex w-full justify-center overflow-hidden"
-        onDoubleClick={dbl}
+      <button
+        type="button"
+        onClick={() => open.reel(r.id)}
+        aria-label={`Reelsni ko‘rish: ${u.username}`}
+        className="relative mx-auto flex max-h-[min(38dvh,420px)] w-full items-center justify-center overflow-hidden"
       >
         <video
-          ref={video}
           src={r.media}
-          muted={muted}
-          loop
+          muted
           playsInline
           preload="metadata"
-          onPlay={() => setPaused(false)}
-          onPause={() => setPaused(true)}
-          onClick={(e) => {
-            const v = e.currentTarget;
-            if (v.paused) v.play();
-            else v.pause();
-          }}
-          className="block h-auto max-h-[min(65dvh,640px)] max-w-full w-auto cursor-pointer"
+          className="block h-auto max-h-[min(38dvh,420px)] max-w-full w-auto"
         />
-        {paused && (
-          <div className="pointer-events-none absolute inset-0 grid place-items-center">
-            <span className="grid h-16 w-16 place-items-center rounded-full bg-black/55 text-white">
-              <Play size={30} fill="currentColor" />
-            </span>
-          </div>
-        )}
-        {heart && (
-          <Heart
-            size={100}
-            fill="white"
-            className="pop pointer-events-none absolute inset-0 m-auto text-white drop-shadow-2xl"
-          />
-        )}
-        <button
-          onClick={() => setMuted(!muted)}
-          aria-label={muted ? "Ovozni yoqish" : "Ovozni o‘chirish"}
-          className="absolute bottom-3 right-3 grid h-8 w-8 place-items-center rounded-full bg-[#0b2f6e]/60 text-white"
-        >
-          {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
-        </button>
-      </div>
+        <span className="pointer-events-none absolute inset-0 grid place-items-center">
+          <span className="grid h-12 w-12 place-items-center rounded-full bg-black/55 text-white">
+            <Play size={24} fill="currentColor" />
+          </span>
+        </span>
+      </button>
       <div className="flex items-center justify-between py-2">
         <div className="flex items-center gap-5">
           <button
