@@ -1977,7 +1977,7 @@ function ReelsCard({ r }) {
     return (
     <article className="relative mx-auto flex h-full w-full snap-start items-center justify-center px-3 py-0">
       <div
-        className="relative h-full w-full shrink-0 overflow-hidden rounded-lg bg-[#0f3f8c] text-white md:aspect-[9/16] md:w-[min(calc(100vw-24px),calc(100dvh*9/16))]"
+        className="relative h-full w-full shrink-0 overflow-hidden rounded-lg text-white md:aspect-[9/16] md:w-[min(calc(100vw-24px),calc(100dvh*9/16))]"
         onDoubleClick={dbl}
       >
         {r.type === "video" ? (
@@ -2008,14 +2008,14 @@ function ReelsCard({ r }) {
               setPaused(false);
             }}
             onPause={() => setPaused(true)}
-            className="h-full w-full object-contain"
+            className="h-full w-full object-cover"
           />
         ) : (
           <img
             src={r.media}
             alt=""
             loading="lazy"
-            className="h-full w-full object-contain"
+            className="h-full w-full object-cover"
           />
         )}
         {paused && r.type === "video" && (
@@ -2350,7 +2350,7 @@ function HomeReelCard({ r }) {
         </div>
       </div>
       <div
-        className={`relative max-h-[min(62dvh,640px)] w-full overflow-hidden border border-neutral-200 bg-[#0f3f8c] !border-[#6aa5f0] sm:rounded-[3px] ${landscape ? "aspect-video" : "aspect-[4/5]"}`}
+        className={`relative max-h-[min(62dvh,640px)] w-full overflow-hidden bg-[#0f3f8c] sm:rounded-[3px] ${landscape ? "aspect-video" : "aspect-[4/5]"}`}
         onDoubleClick={dbl}
       >
         <video
@@ -2372,7 +2372,7 @@ function HomeReelCard({ r }) {
             if (v.paused) v.play();
             else v.pause();
           }}
-          className="block h-full w-full cursor-pointer object-contain"
+          className="block h-full w-full cursor-pointer object-cover"
         />
         {paused && (
           <div className="pointer-events-none absolute inset-0 grid place-items-center">
