@@ -356,7 +356,8 @@ body.reels-page-shell .sea-life-layer {
 }
 body.reels-page-shell .app-shell,
 body.reels-page-shell #root,
-body.reels-page-shell .reels-page {
+body.reels-page-shell .reels-page,
+body.reels-page-shell .reels-shell {
   background: transparent !important;
 }
 body.reels-page-shell .app-shell {

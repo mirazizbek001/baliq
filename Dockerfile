@@ -5,7 +5,7 @@
 FROM node:22-bookworm-slim AS frontend-build
 WORKDIR /frontend
 COPY frontend/react/package*.json ./
-RUN npm install --include=dev
+RUN npm ci --include=dev
 COPY frontend/react/ ./
 RUN npm run build
 
