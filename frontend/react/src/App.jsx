@@ -22,7 +22,6 @@ import { AppProvider, useC } from "./context/AppContext";
 import { Auth, PwaInstallButton } from "./components/Shared";
 import CallOverlay from "./components/CallOverlay";
 import Modals from "./components/Modals";
-import SeaLife from "./components/SeaLife";
 import HomePage from "./pages/HomePage";
 import ReelsPage from "./pages/ReelsPage";
 import SearchPage from "./pages/SearchPage";
@@ -116,7 +115,6 @@ function AppShell() {
       <>
         <Auth A={A} accessInfo={accessInfo} />
         <Modals />
-        <SeaLife />
         <PwaUpdatePrompt visible={pwaUpdateReady} />
       </>
     );

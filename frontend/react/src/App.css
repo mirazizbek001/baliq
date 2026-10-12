@@ -392,11 +392,11 @@ header.md\:hidden, .mobile-bottom-nav { background: var(--bb-deep) !important; b
   100% { background-position: 180% 0; }
 }
 
-/* Dengiz jonzotlari matn va tugmalarni to'smasdan erkin suzadi. */
+/* Dengiz jonzotlari orqa fonda qoladi; matn, kartalar va tugmalar ustiga chiqmasin. */
 .sea-life-layer {
   position: fixed;
   inset: 0;
-  z-index: 1;
+  z-index: 0;
   overflow: hidden;
   pointer-events: none;
   user-select: none;
@@ -406,7 +406,7 @@ header.md\:hidden, .mobile-bottom-nav { background: var(--bb-deep) !important; b
   top: 0;
   left: 0;
   display: block;
-  z-index: 3;
+  z-index: 0;
   will-change: transform, opacity;
   transition-property: left, top, opacity;
   transition-timing-function: linear, linear, ease;
@@ -452,7 +452,7 @@ header.md\:hidden, .mobile-bottom-nav { background: var(--bb-deep) !important; b
   content: "";
   position: fixed;
   inset: 0;
-  z-index: 3;
+  z-index: 0;
   pointer-events: none;
   opacity: .22;
   background-image:
@@ -465,7 +465,11 @@ header.md\:hidden, .mobile-bottom-nav { background: var(--bb-deep) !important; b
   animation: bb-bubbles-rise 22s linear infinite;
 }
 #root > * { position: relative; }
-#root > *:not(script):not(style) { animation: bb-soft-enter .42s ease both; }
+#root > *:not(.sea-life-layer):not(script):not(style) {
+  position: relative;
+  z-index: 1;
+  animation: bb-soft-enter .42s ease both;
+}
 @media (prefers-reduced-motion: reduce) {
   .sea-life-layer, #root::before,
   #root > *:not(script):not(style) {

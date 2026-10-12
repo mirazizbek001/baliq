@@ -19,27 +19,31 @@ const fishPalettes = [
 ];
 
 const randomBetween = (min, max) => min + Math.random() * (max - min);
+const seededRandom = (seed, offset = 0) => {
+  const value = Math.sin(seed * 12.9898 + offset * 78.233) * 43758.5453;
+  return value - Math.floor(value);
+};
 
-function createSwim(kind, laneIndex, laneCount) {
+function createSwim(kind, laneIndex, laneCount, index = 0) {
   const margin = 12;
+  const seed = index + 1;
+
   if (kind === "jellyfish") {
-    const x = randomBetween(
-      margin,
-      Math.max(margin, window.innerWidth - 86 - margin),
-    );
+    const spread = Math.max(80, window.innerWidth - 220);
+    const x = margin + seededRandom(seed, 1) * spread;
     return {
       x,
-      y: window.innerHeight + margin,
-      endX: x,
-      endY: -118,
+      y: window.innerHeight + margin + seededRandom(seed, 2) * 100,
+      endX: x + (seededRandom(seed, 3) - 0.5) * 80,
+      endY: -118 - seededRandom(seed, 4) * 36,
       width: 72,
       height: 94,
-      duration: randomBetween(18000, 28000),
+      duration: randomBetween(18000, 26000) + seededRandom(seed, 5) * 4000,
       forward: 1,
     };
   }
 
-  const forward = Math.random() < 0.5 ? 1 : -1;
+  const forward = seededRandom(seed, 6) < 0.5 ? 1 : -1;
   const isFish = kind === "fish";
   const aspectRatio =
     kind === "fish"
@@ -61,23 +65,24 @@ function createSwim(kind, laneIndex, laneCount) {
         Math.max(54, (window.innerHeight - 24) / aspectRatio),
       );
   const minWidth = Math.min(isFish ? 72 : 64, maxWidth);
-  const width = randomBetween(minWidth, maxWidth);
+  const width = randomBetween(minWidth, maxWidth) * (0.9 + seededRandom(seed, 7) * 0.28);
   const height = width * aspectRatio;
-  const offscreenMargin = width * 1.1;
-  const maxY = Math.max(40, window.innerHeight - height - margin);
-  const laneY =
-    laneCount > 1 ? (laneIndex * maxY) / (laneCount - 1) : maxY / 2;
-  const startY = Math.min(maxY, Math.max(40, margin + laneY));
+  const offscreenMargin = width * 1.2;
+  const maxY = Math.max(42, window.innerHeight - height - margin);
+  const laneGap = laneCount > 1 ? maxY / (laneCount - 1) : maxY * 0.5;
+  const baseY = Math.min(maxY, Math.max(34, laneIndex * laneGap + 42 + (seededRandom(seed, 8) - 0.5) * 44));
+
   const startX = forward > 0 ? -offscreenMargin : window.innerWidth + offscreenMargin;
-  const endX = forward > 0 ? window.innerWidth + offscreenMargin : -offscreenMargin;
+  const endX = forward > 0 ? window.innerWidth + offscreenMargin * 1.15 : -offscreenMargin * 1.15;
 
   return {
     x: startX,
-    y: startY,
+    y: baseY,
     endX,
+    endY: baseY,
     width,
     height,
-    duration: randomBetween(10000, 22000),
+    duration: randomBetween(9000, 18000),
     forward,
   };
 }
@@ -253,79 +258,88 @@ function Jellyfish() {
 }
 
 function SeaCreature({ kind, index, laneIndex, laneCount, staticPosition }) {
-  const [movement, setMovement] = useState(null);
+  const [position, setPosition] = useState(() => {
+    if (staticPosition) {
+      return {
+        ...staticPosition,
+        startX: staticPosition.x,
+        startY: staticPosition.y,
+        forward: staticPosition.forward ?? 1,
+      };
+    }
+
+    const route = createSwim(kind, laneIndex, laneCount, index);
+    return {
+      x: route.x,
+      y: route.y,
+      width: route.width,
+      height: route.height,
+      forward: route.forward,
+      speed: (window.innerWidth + route.width * 2) / (route.duration / 1000),
+      phase: randomBetween(0, Math.PI * 2),
+    };
+  });
 
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (staticPosition || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    let timer;
+    let frameId;
+    let lastTime = performance.now();
     let active = true;
 
-    const startSwim = () => {
+    const tick = (time) => {
       if (!active) return;
-      const route = createSwim(kind, laneIndex, laneCount);
-      const startDelay = randomBetween(index * 180, index * 180 + 700);
+      const delta = time - lastTime;
+      lastTime = time;
 
-      timer = window.setTimeout(() => {
-        if (!active) return;
-        setMovement({
-          ...route,
-          x: route.x,
-          y: route.y,
-          visible: true,
-        });
+      setPosition((current) => {
+        const nextX = current.x + current.forward * (current.speed * delta) / 1000;
+        const maxWidth = window.innerWidth + current.width + 80;
+        const minWidth = -current.width - 80;
 
-        timer = window.setTimeout(() => {
-          if (!active) return;
-          setMovement({
-            ...route,
-            x: route.endX,
-            y: route.endY ?? route.y,
-            width: route.width,
-            height: route.height,
-            visible: true,
-            forward: route.forward,
-            duration: route.duration,
-          });
+        let x = nextX;
+        let y = current.y + Math.sin(time / 600 + current.phase) * 0.55;
 
-          timer = window.setTimeout(() => {
-            if (!active) return;
-            startSwim();
-          }, Math.max(1800, route.duration * 0.78));
-        }, 350);
-      }, startDelay);
+        if (current.forward > 0 && x > maxWidth) {
+          x = minWidth;
+          y = randomBetween(32, Math.max(40, window.innerHeight - current.height - 12));
+        }
+
+        if (current.forward < 0 && x < minWidth) {
+          x = maxWidth;
+          y = randomBetween(32, Math.max(40, window.innerHeight - current.height - 12));
+        }
+
+        return { ...current, x, y };
+      });
+
+      frameId = window.requestAnimationFrame(tick);
     };
 
-    startSwim();
+    frameId = window.requestAnimationFrame(tick);
     return () => {
       active = false;
-      window.clearTimeout(timer);
+      window.cancelAnimationFrame(frameId);
     };
-  }, [index, kind, laneCount, laneIndex]);
+  }, [index, kind, laneCount, laneIndex, staticPosition]);
 
   const fallback = {
     width: kind === "jellyfish" ? 72 : 96,
     height: kind === "jellyfish" ? 94 : 60,
     x: 48 + ((index * 129) % Math.max(120, window.innerWidth - 220)),
     y: 24 + ((index * 73) % Math.max(90, window.innerHeight - 200)),
-    visible: true,
     forward: index % 2 === 0 ? 1 : -1,
-    duration: 18000,
   };
-  const fixedMovement = staticPosition
-    ? { ...staticPosition, visible: true, duration: 22000 }
-    : null;
-  const resolvedMovement = fixedMovement || movement || fallback;
+  const resolved = staticPosition || position || fallback;
   const palette = fishPalettes[index % fishPalettes.length];
   const style = {
-    width: resolvedMovement.width,
-    height: resolvedMovement.height,
-    left: resolvedMovement.x,
-    top: resolvedMovement.y,
-    opacity: resolvedMovement.visible ? (kind === "jellyfish" ? 0.8 : 1) : 0,
+    width: resolved.width,
+    height: resolved.height,
+    left: resolved.x,
+    top: resolved.y,
+    opacity: staticPosition || position ? (kind === "jellyfish" ? 0.8 : 1) : 1,
     zIndex: kind === "jellyfish" ? 2 : 3,
-    transform: `scaleX(${resolvedMovement.forward})`,
-    transitionDuration: `${resolvedMovement.visible ? resolvedMovement.duration : 0}ms, ${resolvedMovement.visible ? resolvedMovement.duration : 0}ms, 1100ms`,
+    transform: `scaleX(${resolved.forward ?? 1})`,
   };
 
   return (
