@@ -1,6 +1,6 @@
 import { Compass, Plus } from "lucide-react";
 import { useC } from "../context/AppContext";
-import { Av, HomeReelCard, PostCard } from "../components/Shared";
+import { Av, FollowBtn, HomeReelCard, PostCard } from "../components/Shared";
 
 function HomePage() {
   const { db, me, open, feed, blockedIds, suggestions } = useC();
@@ -122,6 +122,7 @@ function HomePage() {
                   {u.name}
                 </span>
               </div>
+              <FollowBtn id={u.id} />
             </div>
           ))
         ) : (

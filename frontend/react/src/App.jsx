@@ -122,6 +122,12 @@ function AppShell() {
 
   const isAdmin = me.isAdmin;
   const isReels = pathname === "/reels";
+
+  useEffect(() => {
+    document.body.classList.toggle("reels-page-shell", isReels);
+    return () => document.body.classList.remove("reels-page-shell");
+  }, [isReels]);
+
   const nav = [
     ["/", Home, "Home", unreadN * 0],
     ["/reels", Play, "Reels"],
@@ -263,7 +269,7 @@ function AppShell() {
             ))}
         </nav>
       )}
-      <SeaLife />
+      {!isReels && <SeaLife />}
       <CallOverlay />
       <Modals />
       <PwaUpdatePrompt visible={pwaUpdateReady} />

@@ -347,7 +347,17 @@ header.md\:hidden, .mobile-bottom-nav { background: var(--bb-deep) !important; b
 .no-scrollbar::-webkit-scrollbar { display: none; }
 
 /* Reels */
-.reels-page { background: var(--bb-bg) !important; color: #fff; }
+body.reels-page-shell {
+  background: var(--bb-bg) !important;
+}
+body.reels-page-shell #root::before,
+body.reels-page-shell .sea-life-layer {
+  display: none !important;
+}
+.reels-page {
+  background: var(--bb-bg) !important;
+  color: #fff;
+}
 
 /* Profil */
 .profile-page { max-width: 935px; background: transparent; color: #fff; min-height: calc(100dvh - 56px); }
