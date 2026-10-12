@@ -471,6 +471,7 @@ header.md\:hidden, .mobile-bottom-nav { background: var(--bb-deep) !important; b
   z-index: 1;
   animation: bb-soft-enter .42s ease both;
 }
+#root > .app-shell { animation: none; }
 @media (prefers-reduced-motion: reduce) {
   .sea-life-layer, #root::before,
   #root > *:not(script):not(style) {
