@@ -49,8 +49,14 @@ import { Grid } from "../components/Shared";
 
 function Explore() {
   const { db, me, blockedIds } = useC();
-  const ps = db.posts
-    .filter((item) => item.userId !== me.id && !blockedIds.has(item.userId))
+  const ps = [
+    ...db.posts.filter(
+      (item) => item.userId !== me.id && !blockedIds.has(item.userId),
+    ),
+    ...db.reels
+      .filter((item) => item.userId !== me.id && !blockedIds.has(item.userId))
+      .map((item) => ({ ...item, kind: "reel" })),
+  ]
     .sort((a, b) => b.t - a.t);
   return (
     <div className="mx-auto max-w-[935px] px-1 py-6 sm:px-5">

@@ -1,12 +1,17 @@
 import { Compass, Plus } from "lucide-react";
 import { useC } from "../context/AppContext";
-import { Av, PostCard } from "../components/Shared";
+import { Av, HomeReelCard, PostCard } from "../components/Shared";
 
 function HomePage() {
-  const { db, me, open, feed, suggestions } = useC();
+  const { db, me, open, feed, blockedIds, suggestions } = useC();
   const now = Date.now();
   const oneDayAgo = now - 864e5;
-  const homeItems = feed;
+  const homeItems = [
+    ...feed.map((post) => ({ ...post, kind: "post" })),
+    ...db.reels
+      .filter((reel) => !blockedIds.has(reel.userId))
+      .map((reel) => ({ ...reel, kind: "reel" })),
+  ].sort((a, b) => b.t - a.t);
   const activeStories = db.stories.filter(
     (s) => s.t > oneDayAgo && !s.profileOnly,
   );
@@ -71,7 +76,13 @@ function HomePage() {
           </div>
         )}
         {homeItems.length ? (
-          homeItems.map((item) => <PostCard key={item.id} p={item} />)
+          homeItems.map((item) =>
+            item.kind === "reel" ? (
+              <HomeReelCard key={`reel-${item.id}`} r={item} />
+            ) : (
+              <PostCard key={`post-${item.id}`} p={item} />
+            ),
+          )
         ) : (
           <div className="mt-10 text-center">
             <div className="mx-auto grid h-20 w-20 place-items-center rounded-full border-2 border-current">
