@@ -350,9 +350,13 @@ header.md\:hidden, .mobile-bottom-nav { background: var(--bb-deep) !important; b
 body.reels-page-shell {
   background: var(--bb-bg) !important;
 }
-body.reels-page-shell #root::before,
-body.reels-page-shell .sea-life-layer {
+body.reels-page-shell #root::before {
   display: none !important;
+}
+body.reels-page-shell .sea-life-layer {
+  display: block !important;
+  opacity: 0.72;
+  filter: saturate(1.2) contrast(1.05);
 }
 body.reels-page-shell .app-shell,
 body.reels-page-shell #root,
