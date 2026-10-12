@@ -127,14 +127,23 @@ const Logo = ({ c = "" }) => (
 );
 function FollowBtn({ id, big }) {
   const { A, db, me } = useC();
+  const [pending, setPending] = useState(false);
   if (id === me.id) return null;
   const f = db.follows.some((x) => x.a === me.id && x.b === id);
   return (
     <button
-      onClick={() => A.follow(id)}
-      className={`rounded-lg font-semibold transition active:scale-95 ${big ? "px-6 py-1.5 text-sm" : "px-4 py-1.5 text-xs"} ${f ? "bg-neutral-200 text-white !bg-[#4f92ec] !text-white" : "bg-neutral-900 text-white hover:bg-neutral-700 !bg-[#ff8a1f] !text-white hover:!bg-[#e8750a]"}`}
+      disabled={f || pending}
+      onClick={async () => {
+        setPending(true);
+        try {
+          await A.follow(id);
+        } finally {
+          setPending(false);
+        }
+      }}
+      className={`rounded-lg font-semibold transition active:scale-95 disabled:cursor-default disabled:opacity-80 ${big ? "px-6 py-1.5 text-sm" : "px-4 py-1.5 text-xs"} ${f ? "bg-neutral-200 text-white !bg-[#4f92ec] !text-white" : "bg-neutral-900 text-white hover:bg-neutral-700 !bg-[#ff8a1f] !text-white hover:!bg-[#e8750a]"}`}
     >
-      {f ? "Following" : "Follow"}
+      {pending ? "Kutilmoqda..." : f ? "Following" : "Follow"}
     </button>
   );
 }

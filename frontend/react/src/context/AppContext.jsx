@@ -437,6 +437,7 @@ export function AppProvider({ children }) {
   const [storageReady, setStorageReady] = useState(false);
   const overflowStorageRef = useRef(false);
   const skipSocialSyncRef = useRef(0);
+  const followInFlightRef = useRef(new Set());
   const messageCursorRef = useRef(
     dbRef.current.messages.reduce(
       (cursor, message) => Math.max(cursor, Number(message.t) || 0),
@@ -823,16 +824,28 @@ export function AppProvider({ children }) {
     return persistDatabase(next);
   };
   const sendFastAction = async (action) => {
-    const token = await ensureCsrfToken();
-    const response = await fetch("/plat/social/fast/", {
-      method: "POST",
-      credentials: "same-origin",
-      headers: { "Content-Type": "application/json", "X-CSRFToken": token },
-      body: JSON.stringify(action),
-    });
-    const result = await response.json().catch(() => ({}));
+    const send = (token) =>
+      fetch("/plat/social/fast/", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json", "X-CSRFToken": token },
+        body: JSON.stringify(action),
+      });
+    let response = await send(await ensureCsrfToken());
+    let result = await response.json().catch(() => ({}));
+    if (response.status === 403 && /csrf failed/i.test(result.detail || "")) {
+      const freshToken = await ensureCsrfToken(true);
+      if (freshToken) {
+        response = await send(freshToken);
+        result = await response.json().catch(() => ({}));
+      }
+    }
     if (!response.ok)
-      throw new Error(result.error || "Amalni serverga yuborib bo‘lmadi.");
+      throw new Error(
+        result.error ||
+          result.detail ||
+          `Amalni serverga yuborib bo‘lmadi (${response.status}).`,
+      );
     return result;
   };
   useEffect(() => {
@@ -1443,47 +1456,38 @@ export function AppProvider({ children }) {
       setAccessInfo((current) => ({ ...current, ...value }));
       if (typeof value.open === "boolean") setServiceOpen(value.open);
     },
-    follow: (id) => {
+    follow: async (id) => {
       if (blockRestrictedAction()) return false;
       const user = byId(id);
       if (!user || user.id === meId) return false;
       const had = dbRef.current.follows.some(
         (follow) => follow.a === meId && follow.b === id,
       );
-      if (
-        !save(
-          (d) => {
-            if (had)
-              d.follows = d.follows.filter(
-                (follow) => !(follow.a === meId && follow.b === id),
-              );
-            else d.follows.push({ a: meId, b: id });
-          },
-          { skipRemoteSync: true },
+      if (had || followInFlightRef.current.has(id)) return false;
+      followInFlightRef.current.add(id);
+      try {
+        await sendFastAction({
+          action: "follow",
+          username: user.username,
+        });
+        if (
+          !save(
+            (d) => {
+              if (!d.follows.some((follow) => follow.a === meId && follow.b === id))
+                d.follows.push({ a: meId, b: id });
+            },
+            { skipRemoteSync: true },
+          )
         )
-      )
-        return false;
-      say(
-        had
-          ? `${user.username} follow’dan chiqarildi`
-          : `Siz ${user.username} ni follow qilishni boshladingiz ✓`,
-      );
-      sendFastAction({
-        action: had ? "unfollow" : "follow",
-        username: user.username,
-      }).catch((error) => {
-        save(
-          (d) => {
-            d.follows = d.follows.filter(
-              (follow) => !(follow.a === meId && follow.b === id),
-            );
-            if (had) d.follows.push({ a: meId, b: id });
-          },
-          { skipRemoteSync: true },
-        );
+          return false;
+        say(`Siz ${user.username} ni follow qilishni boshladingiz ✓`);
+        return true;
+      } catch (error) {
         say(error.message);
-      });
-      return true;
+        return false;
+      } finally {
+        followInFlightRef.current.delete(id);
+      }
     },
     toggleMessagePin: (id) => {
       const message = dbRef.current.messages.find(
