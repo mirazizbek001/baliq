@@ -2,7 +2,7 @@
 
 /* ===== Bon-Bon: bitta rangli (ko‘k) tema — oq ham, qora ham fon yo'q ===== */
 :root {
-  --bb-bg: transparent;
+  --bb-bg: #2f7fe6;
   --bb-deep: #2a73d9;
   --bb-surface: #3d8ae9;
   --bb-surface2: #4d95eb;
@@ -19,7 +19,7 @@
   background: var(--bb-bg);
 }
 html, body, #root {
-  background: transparent;
+  background: var(--bb-bg);
   color: var(--bb-text);
   overflow-x: clip;
   overscroll-behavior-y: none;
@@ -486,8 +486,8 @@ body.reels-page-shell .sea-life-layer {
   background-repeat: repeat;
   animation: bb-bubbles-rise 22s linear infinite;
 }
-#root > * { position: relative; }
-#root > *:not(.sea-life-layer):not(script):not(style):not(.app-shell) {
+#root > *:not(.fixed) { position: relative; }
+#root > *:not(.fixed):not(.sea-life-layer):not(script):not(style):not(.app-shell) {
   position: relative;
   z-index: 1;
   animation: bb-soft-enter .42s ease both;

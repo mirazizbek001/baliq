@@ -276,20 +276,25 @@ function GoogleSignIn({ onCredential, onError }) {
 }
 
 export function PwaInstallButton({ compact = false, iconOnly = false }) {
-  const [installPrompt, setInstallPrompt] = useState(
-    () => window.__instakidsInstallPrompt || null,
+  const [installPrompt, setInstallPrompt] = useState(() =>
+    typeof window !== "undefined" ? window.__instakidsInstallPrompt || null : null,
   );
-  const [installed, setInstalled] = useState(
-    () =>
-      window.matchMedia("(display-mode: standalone)").matches ||
-      window.navigator.standalone === true,
-  );
+  const [installed, setInstalled] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return (
+      window.matchMedia?.("(display-mode: standalone)")?.matches ||
+      window.navigator.standalone === true
+    );
+  });
   const [showHelp, setShowHelp] = useState(false);
   const isIos =
-    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    typeof navigator !== "undefined" &&
+    (/iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1));
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
     const onInstallPromptAvailable = () => {
       const nextPrompt = window.__instakidsInstallPrompt || null;
       setInstallPrompt(nextPrompt);
@@ -300,7 +305,7 @@ export function PwaInstallButton({ compact = false, iconOnly = false }) {
       setInstallPrompt(null);
       setShowHelp(false);
     };
-    const displayMode = window.matchMedia("(display-mode: standalone)");
+    const displayMode = window.matchMedia?.("(display-mode: standalone)");
     const onDisplayModeChange = (event) => setInstalled(event.matches);
 
     window.addEventListener(
@@ -308,14 +313,14 @@ export function PwaInstallButton({ compact = false, iconOnly = false }) {
       onInstallPromptAvailable,
     );
     window.addEventListener("appinstalled", onInstalled);
-    displayMode.addEventListener?.("change", onDisplayModeChange);
+    displayMode?.addEventListener?.("change", onDisplayModeChange);
     return () => {
       window.removeEventListener(
         "instakids-installprompt",
         onInstallPromptAvailable,
       );
       window.removeEventListener("appinstalled", onInstalled);
-      displayMode.removeEventListener?.("change", onDisplayModeChange);
+      displayMode?.removeEventListener?.("change", onDisplayModeChange);
     };
   }, []);
 

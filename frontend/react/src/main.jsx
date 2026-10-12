@@ -3,11 +3,14 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.jsx";
 
-window.addEventListener("beforeinstallprompt", (event) => {
-  event.preventDefault();
-  window.__instakidsInstallPrompt = event;
-  window.dispatchEvent(new Event("instakids-installprompt"));
-});
+if (typeof window !== "undefined") {
+  window.addEventListener("beforeinstallprompt", (event) => {
+    if (!event || typeof event.preventDefault !== "function") return;
+    event.preventDefault();
+    window.__instakidsInstallPrompt = event;
+    window.dispatchEvent(new Event("instakids-installprompt"));
+  });
+}
 
 if (import.meta.env.PROD && "serviceWorker" in navigator) {
   let activateUpdate = false;

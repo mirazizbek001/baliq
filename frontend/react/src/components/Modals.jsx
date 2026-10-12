@@ -56,7 +56,7 @@ export default function Modals() {
   return (
     <>
       {!serviceOpen && (
-        <div className="fixed inset-0 z-[120] grid place-items-center bg-[#0b2f6e]/75 p-5 backdrop-blur-md">
+        <div className="fixed inset-0 z-[120] grid place-items-center bg-[#0b2f6e]/90 p-5 backdrop-blur-md">
           <div className="relative w-full max-w-[390px] overflow-hidden rounded-[28px] border border-neutral-200 bg-[#2a70d8] text-white shadow-[0_24px_80px_rgba(0,0,0,.28)] !border-[#6aa5f0] !bg-[#2a70d8] !text-white !shadow-2xl">
             <div className="h-1.5 bg-gradient-to-r from-amber-400 via-orange-500 to-rose-500" />
             <div className="p-7 text-center sm:p-8">
