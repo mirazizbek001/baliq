@@ -348,7 +348,7 @@ header.md\:hidden, .mobile-bottom-nav { background: var(--bb-deep) !important; b
 
 /* Reels */
 body.reels-page-shell {
-  background: #000 !important;
+  background: var(--bb-bg) !important;
 }
 body.reels-page-shell #root::before,
 body.reels-page-shell .sea-life-layer {
@@ -358,17 +358,17 @@ body.reels-page-shell .app-shell,
 body.reels-page-shell #root,
 body.reels-page-shell .reels-page,
 body.reels-page-shell .reels-shell {
-  background: transparent !important;
+  background: var(--bb-bg) !important;
 }
 body.reels-page-shell .app-shell {
   background-image: none !important;
 }
 .reels-page {
-  background: transparent !important;
+  background: var(--bb-bg) !important;
   color: #fff;
 }
 .reels-shell {
-  background: transparent !important;
+  background: var(--bb-bg) !important;
 }
 
 /* Profil */
