@@ -1,0 +1,73 @@
+#!/bin/sh
+set -eu
+
+: "${PORT:=8080}"
+
+# If DATABASE_URL is supplied, Django uses PostgreSQL instead.
+if [ -z "${DATABASE_URL:-}" ]; then
+  if [ -n "${RAILWAY_VOLUME_MOUNT_PATH:-}" ]; then
+    VOLUME_PATH="$RAILWAY_VOLUME_MOUNT_PATH"
+    if [ ! -d "$VOLUME_PATH" ] || [ ! -w "$VOLUME_PATH" ]; then
+      echo "[Bon-Bon] ERROR: Railway Volume yo'li mavjud emas yoki yozish uchun ruxsat yo'q: $VOLUME_PATH" >&2
+      exit 1
+    fi
+    export RAILWAY_VOLUME_MOUNT_PATH="$VOLUME_PATH"
+    mkdir -p "$VOLUME_PATH/media"
+    if [ ! -f "$VOLUME_PATH/db.sqlite3" ] && [ -f /app/db.sqlite3 ]; then
+      echo "[Bon-Bon] First run: copying initial SQLite database to $VOLUME_PATH"
+      cp /app/db.sqlite3 "$VOLUME_PATH/db.sqlite3"
+    fi
+  else
+    if [ -n "${RAILWAY_ENVIRONMENT:-}${RAILWAY_PROJECT_ID:-}${RAILWAY_SERVICE_ID:-}" ]; then
+      echo "[Bon-Bon] ERROR: Railway production uchun doimiy database sozlanmagan." >&2
+      echo "[Bon-Bon] PostgreSQL DATABASE_URL ni ulang yoki Railway Volume'ni /data ga mount qiling." >&2
+      exit 1
+    fi
+    VOLUME_PATH="${INSTA_KIDS_DATA_PATH:-/tmp/instakids-data}"
+    mkdir -p "$VOLUME_PATH/media"
+    export INSTA_KIDS_DATA_PATH="$VOLUME_PATH"
+  fi
+fi
+
+if [ -n "${DATABASE_URL:-}" ]; then
+  echo "[Bon-Bon] Database: PostgreSQL"
+elif [ -n "${RAILWAY_VOLUME_MOUNT_PATH:-}" ]; then
+  echo "[Bon-Bon] Database: SQLite on persistent Railway Volume (${RAILWAY_VOLUME_MOUNT_PATH})"
+else
+  echo "[Bon-Bon] Database: Temporary SQLite (${INSTA_KIDS_DATA_PATH})"
+fi
+
+python manage.py migrate --noinput
+
+# SQLite is kept to one worker to avoid multi-process write locks.
+if [ -n "${DATABASE_URL:-}" ]; then
+  WORKERS="${WEB_CONCURRENCY:-3}"
+else
+  WORKERS=1
+fi
+
+# Start Django first; nginx healthcheck will fail until Django is ready.
+gunicorn config.wsgi:application \
+  --bind 127.0.0.1:8000 \
+  --worker-class gthread \
+  --workers "$WORKERS" \
+  --threads "${GUNICORN_THREADS:-32}" \
+  --timeout 120 \
+  --graceful-timeout 30 \
+  --keep-alive 75 \
+  --max-requests 2000 \
+  --max-requests-jitter 200 \
+  --access-logfile - \
+  --error-logfile - &
+GUNICORN_PID=$!
+
+cleanup() {
+  kill "$GUNICORN_PID" 2>/dev/null || true
+  wait "$GUNICORN_PID" 2>/dev/null || true
+}
+trap cleanup INT TERM EXIT
+
+# Let nginx be the public process and keep the container alive.
+envsubst '${PORT}' < /etc/nginx/nginx.conf.template > /etc/nginx/conf.d/default.conf
+nginx -t
+nginx -g 'daemon off;'
