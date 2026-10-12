@@ -2034,9 +2034,9 @@ function ReelsCard({ r }) {
       bar.current.style.width = (v.currentTime / v.duration) * 100 + "%";
   };
     return (
-    <article className="relative mx-auto flex h-full w-full snap-start items-center justify-center px-3 py-0">
+    <article className="reels-card-shell relative mx-auto flex h-full w-full snap-start items-center justify-center px-3 py-0">
       <div
-        className="relative h-full w-full shrink-0 overflow-hidden rounded-lg text-white md:aspect-[9/16] md:w-[min(calc(100vw-24px),calc(100dvh*9/16))]"
+        className="reels-card-frame relative h-full w-full shrink-0 overflow-hidden text-white md:aspect-[9/16] md:w-[min(calc(100vw-24px),calc(100dvh*9/16))]"
         onDoubleClick={dbl}
       >
         {r.type === "video" ? (
@@ -2375,15 +2375,18 @@ function CreateReel({ close }) {
 function HomeReelCard({ r }) {
   const { byId, me, A, open, db } = useC();
   const u = byId(r.userId);
+  const [muted, setMuted] = useReelMuted();
+  const video = useRef(null);
   const [share, setShare] = useState(false);
   const [commentsOpen, setCommentsOpen] = useState(false);
+  useVideoAutoplay(video, muted, setMuted, 0.5, r.id);
   if (!u) return null;
   const liked = r.likes.includes(me.id);
   const saved = (db.saved[me.id] || []).includes(r.id);
   const count = (r.comments || []).length;
   return (
-    <article className="ig-card mb-4 overflow-hidden border-2 border-[#ff3b30] bg-[#2a70d8] p-0">
-      <div className="flex items-center gap-2 px-3 py-3">
+    <article className="home-reel-card ig-card mb-4 overflow-hidden bg-[#2a70d8] p-0">
+      <div className="flex items-center gap-2 py-2.5">
         <button
           onClick={() => open.profile(u.id)}
           className="flex items-center gap-3"
@@ -2397,26 +2400,42 @@ function HomeReelCard({ r }) {
           <ReelMenu r={r} size={22} showOpen />
         </div>
       </div>
-      <button
-        type="button"
+      <div
+        role="button"
+        tabIndex={0}
         onClick={() => open.reel(r.id)}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            open.reel(r.id);
+          }
+        }}
         aria-label={`Reelsni ko‘rish: ${u.username}`}
-        className="relative mx-auto flex h-[min(62vh,720px)] max-h-[min(62vh,720px)] w-full items-center justify-center overflow-hidden border-y border-white/10 bg-[#0f3f8c]"
+        className="home-reel-media relative mx-auto flex items-center justify-center overflow-hidden bg-[#0f3f8c]"
       >
         <video
+          ref={video}
           src={r.media}
-          muted
+          muted={muted}
           playsInline
-          preload="metadata"
+          loop
+          preload="auto"
           className="block h-full w-full object-cover"
         />
-        <span className="pointer-events-none absolute inset-0 grid place-items-center">
-          <span className="grid h-12 w-12 place-items-center rounded-full bg-black/55 text-white">
-            <Play size={24} fill="currentColor" />
-          </span>
-        </span>
-      </button>
-      <div className="flex items-center justify-between px-3 py-3">
+        <button
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation();
+            setMuted(!muted);
+          }}
+          aria-label={muted ? "Videoning ovozini yoqish" : "Videoning ovozini o‘chirish"}
+          aria-pressed={!muted}
+          className="absolute right-3 top-3 z-10 grid h-10 w-10 place-items-center rounded-full bg-black/55 text-white hover:bg-black/70"
+        >
+          {muted ? <VolumeX size={20} /> : <Volume2 size={20} />}
+        </button>
+      </div>
+      <div className="flex items-center justify-between py-2.5">
         <div className="flex items-center gap-5">
           <button
             onClick={() => A.like(r.id, "reel")}
@@ -2453,13 +2472,13 @@ function HomeReelCard({ r }) {
           <Bookmark size={26} fill={saved ? "currentColor" : "none"} />
         </button>
       </div>
-      <div className="px-3 pb-2">
+      <div className="pb-2">
         <Caption u={u} text={r.caption} />
       </div>
       {count > 0 && (
         <button
           onClick={() => setCommentsOpen(true)}
-          className="mt-1 px-3 pb-3 text-left text-sm text-neutral-500"
+          className="mt-1 pb-3 text-left text-sm text-neutral-500"
         >
           Barcha {count} ta izohni ko‘rish
         </button>

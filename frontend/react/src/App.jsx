@@ -269,7 +269,7 @@ function AppShell() {
             ))}
         </nav>
       )}
-      {isReels || !conversationOpen ? <SeaLife /> : null}
+      <SeaLife />
       <CallOverlay />
       <Modals />
       <PwaUpdatePrompt visible={pwaUpdateReady} />

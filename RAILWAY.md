@@ -10,7 +10,7 @@ Bu versiya frontend va backendni **bitta Railway service** ichida ishlatadi. `/p
 4. **PostgreSQL tavsiya qilinadi:** Railway loyihasiga PostgreSQL qo‘shib, web service Variables bo‘limida uning `DATABASE_URL` qiymatini ulang.
 5. Muqobil: Railway Volume yarating va web service'ga `/data` manziliga ulang.
 
-Railway production'da PostgreSQL yoki Volume sozlanmagan bo‘lsa, ilova endi vaqtinchalik SQLite bilan ishga tushmaydi. Deploy logida sozlash bo‘yicha aniq xabar chiqadi. Bu akkauntlar, xabarlar va media vaqtinchalik bazada saqlanib, keyingi deployda yo‘qolishining oldini oladi.
+Railway production'da PostgreSQL yoki Volume sozlanmagan bo‘lsa, ilova vaqtinchalik SQLite fallback bilan ishlaydi. Bu 502 ni oldini olish uchun kerak, lekin ma'lumotlar vaqtincha saqlanadi; productionda doimiy ma'lumotlar uchun PostgreSQL yoki Volume qo‘shish tavsiya etiladi.
 
 ## 2. Variables
 

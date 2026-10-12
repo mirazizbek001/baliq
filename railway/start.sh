@@ -8,23 +8,22 @@ if [ -z "${DATABASE_URL:-}" ]; then
   if [ -n "${RAILWAY_VOLUME_MOUNT_PATH:-}" ]; then
     VOLUME_PATH="$RAILWAY_VOLUME_MOUNT_PATH"
     if [ ! -d "$VOLUME_PATH" ] || [ ! -w "$VOLUME_PATH" ]; then
-      echo "[Bon-Bon] ERROR: Railway Volume yo'li mavjud emas yoki yozish uchun ruxsat yo'q: $VOLUME_PATH" >&2
-      exit 1
-    fi
-    export RAILWAY_VOLUME_MOUNT_PATH="$VOLUME_PATH"
-    mkdir -p "$VOLUME_PATH/media"
-    if [ ! -f "$VOLUME_PATH/db.sqlite3" ] && [ -f /app/db.sqlite3 ]; then
-      echo "[Bon-Bon] First run: copying initial SQLite database to $VOLUME_PATH"
-      cp /app/db.sqlite3 "$VOLUME_PATH/db.sqlite3"
+      echo "[Bon-Bon] WARNING: Railway Volume mavjud emas yoki yozish uchun ruxsat yo'q: $VOLUME_PATH" >&2
+      echo "[Bon-Bon] WARNING: Temporary SQLite fallback ishlatiladi." >&2
+      VOLUME_PATH="${INSTA_KIDS_DATA_PATH:-/tmp/instakids-data}"
+    else
+      export RAILWAY_VOLUME_MOUNT_PATH="$VOLUME_PATH"
+      mkdir -p "$VOLUME_PATH/media"
+      if [ ! -f "$VOLUME_PATH/db.sqlite3" ] && [ -f /app/db.sqlite3 ]; then
+        echo "[Bon-Bon] First run: copying initial SQLite database to $VOLUME_PATH"
+        cp /app/db.sqlite3 "$VOLUME_PATH/db.sqlite3"
+      fi
     fi
   else
-    if [ -n "${RAILWAY_ENVIRONMENT:-}${RAILWAY_PROJECT_ID:-}${RAILWAY_SERVICE_ID:-}" ]; then
-      echo "[Bon-Bon] ERROR: Railway production uchun doimiy database sozlanmagan." >&2
-      echo "[Bon-Bon] PostgreSQL DATABASE_URL ni ulang yoki Railway Volume'ni /data ga mount qiling." >&2
-      exit 1
-    fi
     VOLUME_PATH="${INSTA_KIDS_DATA_PATH:-/tmp/instakids-data}"
     mkdir -p "$VOLUME_PATH/media"
+    echo "[Bon-Bon] WARNING: DATABASE_URL and Railway Volume are not configured. Falling back to temporary SQLite."
+    echo "[Bon-Bon] WARNING: Attach PostgreSQL or a mounted Volume for persistent data in production."
     export INSTA_KIDS_DATA_PATH="$VOLUME_PATH"
   fi
 fi

@@ -350,9 +350,6 @@ header.md\:hidden, .mobile-bottom-nav { background: var(--bb-deep) !important; b
 body.reels-page-shell {
   background: var(--bb-bg) !important;
 }
-body.reels-page-shell #root::before {
-  display: none !important;
-}
 body.reels-page-shell .sea-life-layer {
   display: block !important;
   opacity: 0.72;
@@ -360,27 +357,94 @@ body.reels-page-shell .sea-life-layer {
 }
 body.reels-page-shell .app-shell,
 body.reels-page-shell #root,
-body.reels-page-shell .reels-page,
 body.reels-page-shell .reels-shell {
   background: var(--bb-bg) !important;
 }
 body.reels-page-shell .app-shell {
   background-image: none !important;
 }
+.reels-page, .message-page {
+  background: transparent !important;
+}
 .reels-page {
-  background: var(--bb-bg) !important;
   color: #fff;
+  display: flex;
+  flex-direction: column;
+  padding-left: 12px;
+  padding-right: 12px;
 }
 .reels-shell {
   background: var(--bb-bg) !important;
 }
-
+.reels-card-shell {
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  flex: 0 0 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.reels-card-frame {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: rgba(0,0,0,0.18);
+  width: min(100%, calc((100dvh - 32px) * 0.61), 520px);
+  height: min(calc(100dvh - 32px), 860px);
+  min-height: 0;
+  max-height: none;
+  aspect-ratio: 0.61;
+}
+.reels-card-frame video,
+.reels-card-frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #000;
+}
+.home-reel-card {
+  width: min(100%, calc((100dvh - 32px) * 0.66 + 20px), 580px);
+  margin-inline: auto;
+  padding: 10px;
+}
+.home-reel-media {
+  width: 100%;
+  height: min(calc(100dvh - 32px), 860px);
+  aspect-ratio: 0.66;
+}
+.home-reel-media video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #000;
+}
+.reels-card-frame .absolute.right-3.top-3 {
+  right: 12px;
+  top: 12px;
+}
+.reels-card-frame .absolute.inset-x-0.bottom-0 {
+  height: 4px;
+}
 /* Profil */
 .profile-page { max-width: 935px; background: transparent; color: #fff; min-height: calc(100dvh - 56px); }
 .profile-page .border-neutral-200 { border-color: var(--bb-line) !important; }
 .profile-mobile-bio { display: none; }
 
 @media (max-width: 767px) {
+  .reels-card-frame {
+    width: min(100%, calc((100dvh - 120px) * 0.61));
+    height: min(calc(100dvh - 120px), 760px);
+  }
+  .home-reel-media {
+    width: 100%;
+    height: min(calc(100dvh - 150px), 700px);
+  }
+  .home-reel-card {
+    width: min(100%, calc((100dvh - 150px) * 0.66 + 20px), 500px);
+  }
   .app-page-shell .ig-feed { width: calc(100% - 24px); }
   .app-page-shell .message-page { height: calc(var(--message-viewport-height, 100dvh) - 120px); }
   .conversation-open .app-page-shell .message-page {
@@ -492,7 +556,7 @@ body.reels-page-shell .app-shell {
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  opacity: .22;
+  opacity: .16;
   background-image:
     radial-gradient(circle, rgba(255,255,255,.85) 0 2px, transparent 3px),
     radial-gradient(circle, rgba(255,255,255,.75) 0 3px, transparent 4px),
