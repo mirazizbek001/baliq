@@ -2401,14 +2401,14 @@ function HomeReelCard({ r }) {
         type="button"
         onClick={() => open.reel(r.id)}
         aria-label={`Reelsni ko‘rish: ${u.username}`}
-        className="relative mx-auto flex max-h-[min(38dvh,420px)] w-full items-center justify-center overflow-hidden border-y border-white/10"
+        className="relative mx-auto flex h-[min(62vh,720px)] max-h-[min(62vh,720px)] w-full items-center justify-center overflow-hidden border-y border-white/10 bg-[#0f3f8c]"
       >
         <video
           src={r.media}
           muted
           playsInline
           preload="metadata"
-          className="block h-auto max-h-[min(38dvh,420px)] max-w-full w-full object-cover"
+          className="block h-full w-full object-cover"
         />
         <span className="pointer-events-none absolute inset-0 grid place-items-center">
           <span className="grid h-12 w-12 place-items-center rounded-full bg-black/55 text-white">

@@ -97,7 +97,7 @@ function HomePage() {
           </div>
         )}
       </section>
-      <aside className="hidden w-[320px] pt-7 lg:block">
+      <aside className="hidden w-[320px] pt-7 lg:sticky lg:top-6 lg:block lg:self-start">
         <div className="flex items-center gap-3">
           <button onClick={() => open.profile(me.id)}>
             <Av u={me} s={56} />
