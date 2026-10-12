@@ -248,25 +248,14 @@ STORAGES = {
 }
 
 _email_host = os.getenv('EMAIL_HOST', '').strip()
-_email_backend = os.getenv(
+EMAIL_BACKEND = os.getenv(
     'EMAIL_BACKEND',
     'django.core.mail.backends.smtp.EmailBackend' if _email_host else 'django.core.mail.backends.locmem.EmailBackend'
 )
-_email_options = {}
-if _email_host:
-    _email_options = {
-        'host': _email_host,
-        'port': int(os.getenv('EMAIL_PORT', '587')) if os.getenv('EMAIL_PORT', '').strip() else 587,
-        'username': os.getenv('EMAIL_HOST_USER', ''),
-        'password': os.getenv('EMAIL_HOST_PASSWORD', ''),
-        'use_tls': os.getenv('EMAIL_USE_TLS', '1').lower() in {'1', 'true', 'yes', 'on'},
-        'use_ssl': os.getenv('EMAIL_USE_SSL', '0').lower() in {'1', 'true', 'yes', 'on'},
-    }
-
-MAILERS = {
-    'default': {
-        'BACKEND': _email_backend,
-        'OPTIONS': _email_options,
-    },
-}
+EMAIL_HOST = _email_host
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587')) if os.getenv('EMAIL_PORT', '').strip() else 587
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', '1').lower() in {'1', 'true', 'yes', 'on'}
+EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', '0').lower() in {'1', 'true', 'yes', 'on'}
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'noreply@localhost')
