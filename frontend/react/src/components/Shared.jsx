@@ -985,7 +985,7 @@ function PostCard({ p }) {
         <img
           src={p.image}
           alt=""
-          className="block max-h-[760px] w-full select-none object-cover"
+          className="block max-h-[min(62dvh,760px)] w-full select-none object-contain"
         />
         {heart && (
           <Heart
@@ -1380,7 +1380,11 @@ function StoryViewer({ story, close, stories }) {
           </>
         )}
         {current.type !== "video" && (
-          <img src={current.media} className="h-full w-full object-cover" />
+          <img
+            src={current.media}
+            alt=""
+            className="h-full w-full bg-[#0f3f8c] object-contain"
+          />
         )}
         {current.caption && !reelStory && (
           <div className="absolute bottom-20 left-4 right-4 rounded-xl bg-black/45 p-3 text-sm backdrop-blur">
@@ -2004,14 +2008,14 @@ function ReelsCard({ r }) {
               setPaused(false);
             }}
             onPause={() => setPaused(true)}
-            className="h-full w-full object-cover"
+            className="h-full w-full object-contain"
           />
         ) : (
           <img
             src={r.media}
             alt=""
             loading="lazy"
-            className="h-full w-full object-cover"
+            className="h-full w-full object-contain"
           />
         )}
         {paused && r.type === "video" && (
@@ -2346,7 +2350,7 @@ function HomeReelCard({ r }) {
         </div>
       </div>
       <div
-        className={`relative w-full overflow-hidden border border-neutral-200 bg-[#0f3f8c] !border-[#6aa5f0] sm:rounded-[3px] ${landscape ? "aspect-video" : "aspect-[4/5]"}`}
+        className={`relative max-h-[min(62dvh,640px)] w-full overflow-hidden border border-neutral-200 bg-[#0f3f8c] !border-[#6aa5f0] sm:rounded-[3px] ${landscape ? "aspect-video" : "aspect-[4/5]"}`}
         onDoubleClick={dbl}
       >
         <video
@@ -2368,7 +2372,7 @@ function HomeReelCard({ r }) {
             if (v.paused) v.play();
             else v.pause();
           }}
-          className="block h-full w-full cursor-pointer object-cover"
+          className="block h-full w-full cursor-pointer object-contain"
         />
         {paused && (
           <div className="pointer-events-none absolute inset-0 grid place-items-center">
