@@ -979,13 +979,13 @@ function PostCard({ p }) {
         )}
       </div>
       <div
-        className="ig-media relative overflow-hidden border border-neutral-200 !border-[#6aa5f0] sm:rounded-[3px]"
+        className="ig-media relative flex w-full justify-center overflow-hidden"
         onClick={triggerHeart}
       >
         <img
           src={p.image}
           alt=""
-          className="block h-auto w-full select-none"
+          className="block h-auto max-h-[min(65dvh,640px)] max-w-full w-auto select-none"
         />
         {heart && (
           <Heart
@@ -2349,7 +2349,7 @@ function HomeReelCard({ r }) {
         </div>
       </div>
       <div
-        className="relative w-full overflow-hidden"
+        className="relative flex w-full justify-center overflow-hidden"
         onDoubleClick={dbl}
       >
         <video
@@ -2366,7 +2366,7 @@ function HomeReelCard({ r }) {
             if (v.paused) v.play();
             else v.pause();
           }}
-          className="block h-auto w-full cursor-pointer"
+          className="block h-auto max-h-[min(65dvh,640px)] max-w-full w-auto cursor-pointer"
         />
         {paused && (
           <div className="pointer-events-none absolute inset-0 grid place-items-center">
