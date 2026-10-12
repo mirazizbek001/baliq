@@ -2,7 +2,7 @@
 
 /* ===== Bon-Bon: bitta rangli (ko‘k) tema — oq ham, qora ham fon yo'q ===== */
 :root {
-  --bb-bg: #2f7fe6;
+  --bb-bg: transparent;
   --bb-deep: #2a73d9;
   --bb-surface: #3d8ae9;
   --bb-surface2: #4d95eb;
@@ -19,7 +19,7 @@
   background: var(--bb-bg);
 }
 html, body, #root {
-  background: var(--bb-bg);
+  background: transparent;
   color: var(--bb-text);
   overflow-x: clip;
   overscroll-behavior-y: none;

@@ -153,7 +153,7 @@ function AppShell() {
     ) : null;
   return (
     <div
-      className={`app-shell min-h-screen bg-[#2a70d8] text-white !bg-[#1a5fc8] !text-white ${conversationOpen ? "conversation-open" : ""}`}
+      className={`app-shell min-h-screen bg-transparent text-white !bg-transparent !text-white ${conversationOpen ? "conversation-open" : ""}`}
     >
       <aside className="ig-sidebar fixed left-0 top-0 z-30 hidden h-screen flex-col border-r border-neutral-200 bg-[#2a70d8] px-3 pb-5 pt-7 !border-[#6aa5f0] !bg-[#1450a8] md:flex">
         <nav className="space-y-1">
