@@ -160,6 +160,51 @@ function Modal({ close, children, wide }) {
     </div>
   );
 }
+function ConfirmDialog({
+  open,
+  title,
+  description,
+  confirmLabel = "OK",
+  cancelLabel = "Cancel",
+  onConfirm,
+  onCancel,
+}) {
+  if (!open) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-[70] grid place-items-center bg-[#081f4d]/70 p-4 backdrop-blur-sm"
+      onMouseDown={(e) => e.target === e.currentTarget && onCancel?.()}
+    >
+      <div className="w-full max-w-[520px] rounded-[30px] border border-[#6aa5f0] bg-[#1d1d1f]/90 px-6 py-5 text-center text-white shadow-[0_28px_60px_rgba(0,0,0,0.42)]">
+        <div className="text-[18px] font-semibold leading-relaxed text-white">
+          {title}
+        </div>
+        {description && (
+          <p className="mt-2 text-sm leading-relaxed text-white/70">
+            {description}
+          </p>
+        )}
+        <div className="mt-6 flex justify-center gap-4">
+          <button
+            type="button"
+            onClick={onConfirm}
+            className="min-w-[122px] rounded-full bg-[#8cc8ff] px-7 py-3 text-base font-semibold text-[#0b2f6e] shadow-[inset_0_0_0_1px_rgba(11,47,110,0.18)] transition hover:bg-[#bfe1ff]"
+          >
+            {confirmLabel}
+          </button>
+          <button
+            type="button"
+            onClick={onCancel}
+            className="min-w-[122px] rounded-full border border-[#8cc8ff] bg-transparent px-7 py-3 text-base font-medium text-[#dfeeff] transition hover:bg-white/5"
+          >
+            {cancelLabel}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 function EmojiPicker({ onPick, cls = "", compact = false }) {
   const [tab, setTab] = useState(Object.keys(EMO)[0]);
   return (
@@ -2328,8 +2373,8 @@ function HomeReelCard({ r }) {
   const saved = (db.saved[me.id] || []).includes(r.id);
   const count = (r.comments || []).length;
   return (
-    <article className="ig-card mb-4 pb-4">
-      <div className="flex items-center gap-2 py-3">
+    <article className="ig-card mb-4 overflow-hidden border-2 border-[#ff3b30] bg-[#2a70d8] p-0">
+      <div className="flex items-center gap-2 px-3 py-3">
         <button
           onClick={() => open.profile(u.id)}
           className="flex items-center gap-3"
@@ -2347,14 +2392,14 @@ function HomeReelCard({ r }) {
         type="button"
         onClick={() => open.reel(r.id)}
         aria-label={`Reelsni ko‘rish: ${u.username}`}
-        className="relative mx-auto flex max-h-[min(38dvh,420px)] w-full items-center justify-center overflow-hidden"
+        className="relative mx-auto flex max-h-[min(38dvh,420px)] w-full items-center justify-center overflow-hidden border-y border-white/10"
       >
         <video
           src={r.media}
           muted
           playsInline
           preload="metadata"
-          className="block h-auto max-h-[min(38dvh,420px)] max-w-full w-auto"
+          className="block h-auto max-h-[min(38dvh,420px)] max-w-full w-full object-cover"
         />
         <span className="pointer-events-none absolute inset-0 grid place-items-center">
           <span className="grid h-12 w-12 place-items-center rounded-full bg-black/55 text-white">
@@ -2362,7 +2407,7 @@ function HomeReelCard({ r }) {
           </span>
         </span>
       </button>
-      <div className="flex items-center justify-between py-2">
+      <div className="flex items-center justify-between px-3 py-3">
         <div className="flex items-center gap-5">
           <button
             onClick={() => A.like(r.id, "reel")}
@@ -2399,11 +2444,13 @@ function HomeReelCard({ r }) {
           <Bookmark size={26} fill={saved ? "currentColor" : "none"} />
         </button>
       </div>
-      <Caption u={u} text={r.caption} />
+      <div className="px-3 pb-2">
+        <Caption u={u} text={r.caption} />
+      </div>
       {count > 0 && (
         <button
           onClick={() => setCommentsOpen(true)}
-          className="mt-1 text-sm text-neutral-500"
+          className="mt-1 px-3 pb-3 text-left text-sm text-neutral-500"
         >
           Barcha {count} ta izohni ko‘rish
         </button>
@@ -2828,6 +2875,7 @@ export {
   Logo,
   FollowBtn,
   Modal,
+  ConfirmDialog,
   EmojiPicker,
   Auth,
   PostActions,

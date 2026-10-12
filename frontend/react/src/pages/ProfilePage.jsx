@@ -37,6 +37,7 @@ import {
   Av,
   FollowBtn,
   Modal,
+  ConfirmDialog,
   Grid,
   EditProfile,
   ChangePassword,
@@ -75,6 +76,7 @@ function Profile({ id, goChat }) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [blockedListOpen, setBlockedListOpen] = useState(false);
   const [changePassword, setChangePassword] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [connectionList, setConnectionList] = useState(null);
   const [connectionSearch, setConnectionSearch] = useState("");
   const now = Date.now();
@@ -205,15 +207,9 @@ function Profile({ id, goChat }) {
                         <LogOut size={17} /> Chiqish
                       </button>
                       <button
-                        onClick={async () => {
-                          if (
-                            window.confirm(
-                              "Akkauntingizni butunlay o‘chirishni xohlaysizmi?",
-                            )
-                          ) {
-                            setSettingsOpen(false);
-                            await A.deleteAccount();
-                          }
+                        onClick={() => {
+                          setSettingsOpen(false);
+                          setDeleteConfirmOpen(true);
                         }}
                         className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm text-red-400 hover:bg-red-500/10"
                       >
@@ -387,6 +383,19 @@ function Profile({ id, goChat }) {
           <ImagePlus size={44} className="mx-auto mb-3" strokeWidth={1.2} />
           Saqlangan postlar yo‘q
         </div>
+      )}
+      {deleteConfirmOpen && (
+        <ConfirmDialog
+          open={deleteConfirmOpen}
+          title="Akkauntingizni butunlay o'chirishni xohlaysizmi?"
+          confirmLabel="OK"
+          cancelLabel="Cancel"
+          onConfirm={async () => {
+            setDeleteConfirmOpen(false);
+            await A.deleteAccount();
+          }}
+          onCancel={() => setDeleteConfirmOpen(false)}
+        />
       )}
       {edit && <EditProfile close={() => setEdit(false)} />}
       {changePassword && (

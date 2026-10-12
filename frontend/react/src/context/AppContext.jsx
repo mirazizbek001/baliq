@@ -2726,7 +2726,7 @@ export function AppProvider({ children }) {
     post: setPostId,
     reel: (id) => {
       setReelId(id);
-      navigate("/reels");
+      navigate(`/reels?reel=${encodeURIComponent(id)}`);
     },
     story: (id) => setStoryId(id),
     create: () => setCreate(true),

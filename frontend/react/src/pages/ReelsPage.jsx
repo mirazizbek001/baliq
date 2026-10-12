@@ -1,11 +1,15 @@
 import { useEffect, useMemo, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import { ChevronDown, ChevronUp, Play } from "lucide-react";
 import { useC } from "../context/AppContext";
 import { ReelsCard } from "../components/Shared";
 
 function ReelsPage() {
   const { db, reelId } = useC();
+  const location = useLocation();
   const box = useRef(null);
+  const selectedReelId =
+    reelId ?? new URLSearchParams(location.search).get("reel");
   const reelOrderKey = db.reels.map((reel) => reel.id).join(",");
   const blockedKey = [...db.blockedUsers, ...db.blockedByUsers].sort().join(",");
   const orderedReelIds = useMemo(() => {
@@ -15,13 +19,13 @@ function ReelsPage() {
       const j = Math.floor(Math.random() * (i + 1));
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
-    const selectedIndex = shuffled.findIndex((reel) => reel.id === reelId);
+    const selectedIndex = shuffled.findIndex((reel) => reel.id === selectedReelId);
     if (selectedIndex > 0) {
       const [selected] = shuffled.splice(selectedIndex, 1);
       shuffled.unshift(selected);
     }
     return shuffled.map((reel) => reel.id);
-  }, [reelOrderKey, blockedKey, reelId]);
+  }, [reelOrderKey, blockedKey, selectedReelId]);
   const reelsById = new Map(db.reels.map((reel) => [reel.id, reel]));
   const orderedReels = orderedReelIds
     .map((id) => reelsById.get(id))
