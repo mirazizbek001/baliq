@@ -350,7 +350,7 @@ header.md\:hidden, .mobile-bottom-nav { background: var(--bb-deep) !important; b
 .reels-page { background: var(--bb-bg) !important; color: #fff; }
 
 /* Profil */
-.profile-page { max-width: 935px; background: var(--bb-bg); color: #fff; min-height: calc(100dvh - 56px); }
+.profile-page { max-width: 935px; background: transparent; color: #fff; min-height: calc(100dvh - 56px); }
 .profile-page .border-neutral-200 { border-color: var(--bb-line) !important; }
 .profile-mobile-bio { display: none; }
 
