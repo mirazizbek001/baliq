@@ -146,14 +146,14 @@ function Modal({ close, children, wide }) {
 
   return (
     <div
-      className="fixed inset-0 z-[60] grid place-items-center bg-[#0b2f6e]/70 p-3 backdrop-blur-sm"
+      className="fixed inset-0 z-[60] grid place-items-center overflow-y-auto bg-[#0b2f6e]/70 p-3 backdrop-blur-sm"
       onMouseDown={(e) => e.target === e.currentTarget && close()}
     >
       <button onClick={close} className="absolute right-4 top-4 text-white">
         <X size={28} />
       </button>
       <div
-        className={`max-h-[92vh] w-full overflow-hidden rounded-2xl border-t-2 border-t-[#ffd24d] bg-[#2a70d8] text-white shadow-2xl !border-x !border-b !border-[#6aa5f0] !bg-[#2a70d8] !text-white ${wide ? "max-w-[1050px]" : "max-w-[520px]"}`}
+        className={`my-auto max-h-[calc(100dvh-1.5rem)] w-full overflow-x-hidden overflow-y-auto rounded-2xl border-t-2 border-t-[#ffd24d] bg-[#2a70d8] text-white shadow-2xl !border-x !border-b !border-[#6aa5f0] !bg-[#2a70d8] !text-white ${wide ? "max-w-[1050px]" : "max-w-[520px]"}`}
       >
         {children}
       </div>
@@ -1027,12 +1027,12 @@ function PostModal({ id, close }) {
   const u = byId(p.userId);
   return (
     <Modal close={close} wide>
-      <div className="flex max-h-[92vh] flex-col md:h-[640px] md:flex-row">
-        <div className="grid shrink-0 place-items-center bg-[#0f3f8c] md:w-[60%]">
+      <div className="flex h-[min(92dvh,640px)] min-h-0 flex-col md:flex-row">
+        <div className="grid min-h-0 shrink-0 place-items-center bg-[#0f3f8c] md:h-full md:w-[60%]">
           <img
             src={p.image}
             alt=""
-            className="max-h-[50vh] w-full object-contain md:max-h-full"
+            className="max-h-[45dvh] w-full object-contain md:max-h-full"
           />
         </div>
         <div className="flex min-h-0 flex-1 flex-col px-4">
