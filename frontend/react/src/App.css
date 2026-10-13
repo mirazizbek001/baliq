@@ -345,15 +345,25 @@ header.md\:hidden, .mobile-bottom-nav { background: var(--bb-deep) !important; b
 }
 .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
+.share-modal-scrollbar {
+  scrollbar-color: #9ec5ff #1d58a5;
+  scrollbar-width: auto;
+}
+.share-modal-scrollbar::-webkit-scrollbar { width: 6px; }
+.share-modal-scrollbar::-webkit-scrollbar-track {
+  background: #1d58a5;
+  border-radius: 999px;
+}
+.share-modal-scrollbar::-webkit-scrollbar-thumb {
+  background: #9ec5ff;
+  border: 1px solid #2a70d8;
+  border-radius: 999px;
+}
+.share-modal-scrollbar::-webkit-scrollbar-thumb:hover { background: #fff; }
 
 /* Reels */
 body.reels-page-shell {
   background: var(--bb-bg) !important;
-}
-body.reels-page-shell .sea-life-layer {
-  display: block !important;
-  opacity: 0.72;
-  filter: saturate(1.2) contrast(1.05);
 }
 body.reels-page-shell .app-shell,
 body.reels-page-shell #root,
@@ -494,61 +504,6 @@ body.reels-page-shell .app-shell {
   100% { background-position: 180% 0; }
 }
 
-/* Dengiz jonzotlari orqa fonda qoladi; matn, kartalar va tugmalar ustiga chiqmasin. */
-.sea-life-layer {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
-  pointer-events: none;
-  user-select: none;
-}
-.sea-creature {
-  position: fixed;
-  top: 0;
-  left: 0;
-  display: block;
-  z-index: 0;
-  will-change: transform, opacity;
-  transition-property: left, top, opacity;
-  transition-timing-function: linear, linear, ease;
-  filter: drop-shadow(0 7px 10px rgba(4, 36, 85, .35));
-}
-.sea-creature svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-  transform: translateZ(0);
-}
-.sea-creature-shark { filter: drop-shadow(0 8px 11px rgba(4, 30, 57, .38)); }
-.sea-fish-tail {
-  transform-box: fill-box;
-  transform-origin: 100% 50%;
-  animation: sea-tail-beat .7s ease-in-out infinite alternate;
-}
-.sea-turtle-flippers {
-  transform-box: fill-box;
-  transform-origin: 52% 50%;
-  animation: sea-flipper-beat 1.8s ease-in-out infinite alternate;
-}
-.sea-jelly-tentacles {
-  transform-box: fill-box;
-  transform-origin: 50% 0;
-  animation: sea-tentacle-drift 2.5s ease-in-out infinite alternate;
-}
-@keyframes sea-tail-beat {
-  from { transform: rotate(-9deg); }
-  to { transform: rotate(9deg); }
-}
-@keyframes sea-flipper-beat {
-  from { transform: rotate(-4deg); }
-  to { transform: rotate(5deg); }
-}
-@keyframes sea-tentacle-drift {
-  from { transform: skewX(-5deg); }
-  to { transform: skewX(5deg); }
-}
 /* Mayin pufakchalar sahifa orqasida emas, ko'rinadigan joylarda yengil overlay */
 #root::before {
   content: "";
@@ -567,17 +522,16 @@ body.reels-page-shell .app-shell {
   animation: bb-bubbles-rise 22s linear infinite;
 }
 #root > *:not(.fixed) { position: relative; }
-#root > *:not(.fixed):not(.sea-life-layer):not(script):not(style):not(.app-shell) {
+#root > *:not(.fixed):not(script):not(style):not(.app-shell) {
   position: relative;
   z-index: 1;
   animation: bb-soft-enter .42s ease both;
 }
 @media (prefers-reduced-motion: reduce) {
-  .sea-life-layer, #root::before,
+  #root::before,
   #root > *:not(script):not(style) {
     animation: none !important;
   }
-  .sea-creature { transition: none !important; }
 }
 
 /* Kontentni jonliroq ko'rsatadigan mikro-harakatlar */

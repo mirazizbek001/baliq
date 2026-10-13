@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import {
   Bookmark,
@@ -153,20 +154,21 @@ function Modal({ close, children, wide }) {
     return unlock;
   }, []);
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-[60] grid place-items-center overflow-y-auto bg-[#0b2f6e]/70 p-3 backdrop-blur-sm"
+      className="fixed inset-0 z-[60] grid place-items-center overflow-y-auto overscroll-contain bg-[#0b2f6e]/70 p-3 backdrop-blur-sm"
       onMouseDown={(e) => e.target === e.currentTarget && close()}
     >
       <button onClick={close} className="absolute right-4 top-4 text-white">
         <X size={28} />
       </button>
       <div
-        className={`my-auto max-h-[calc(100dvh-1.5rem)] w-full overflow-x-hidden overflow-y-auto rounded-2xl border-t-2 border-t-[#ffd24d] bg-[#2a70d8] text-white shadow-2xl !border-x !border-b !border-[#6aa5f0] !bg-[#2a70d8] !text-white ${wide ? "max-w-[1050px]" : "max-w-[520px]"}`}
+        className={`share-modal-scrollbar my-auto max-h-[calc(100dvh-1.5rem)] w-full overflow-x-hidden overflow-y-auto rounded-2xl border-t-2 border-t-[#ffd24d] bg-[#2a70d8] text-white shadow-2xl !border-x !border-b !border-[#6aa5f0] !bg-[#2a70d8] !text-white ${wide ? "max-w-[1050px]" : "max-w-[520px]"}`}
       >
         {children}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 function ConfirmDialog({
@@ -1065,14 +1067,6 @@ function PostCard({ p }) {
           <b className="mr-1">{u.username}</b>
           {p.caption}
         </p>
-      )}
-      {p.comments.length > 0 && (
-        <button
-          onClick={() => open.post(p.id)}
-          className="mt-1 text-sm text-neutral-500"
-        >
-          Barcha {p.comments.length} ta izohni ko‘rish
-        </button>
       )}
     </article>
   );
@@ -2102,6 +2096,11 @@ function ReelsCard({ r }) {
             <b className="max-w-[40%] truncate text-sm">{u.username}</b>
             {u.id !== me.id && <FollowBtn id={u.id} />}
           </div>
+          {r.likes.length > 0 && (
+            <p className="text-sm font-semibold">
+              {r.likes.length.toLocaleString()} ta yoqtirish
+            </p>
+          )}
           <Caption u={{ username: "" }} text={r.caption} />
           <p className="text-xs text-white/80">
             ♪ Original audio · {u.username}
@@ -2121,7 +2120,6 @@ function ReelsCard({ r }) {
                 className={liked ? "text-[#ff4f6d]" : "text-white"}
               />
             </button>
-            <span className="text-[10px] font-semibold leading-none">{fmtN(r.likes.length)}</span>
           </div>
           <div className="flex flex-col items-center gap-0.5">
             <button
@@ -2475,14 +2473,6 @@ function HomeReelCard({ r }) {
       <div className="pb-2">
         <Caption u={u} text={r.caption} />
       </div>
-      {count > 0 && (
-        <button
-          onClick={() => setCommentsOpen(true)}
-          className="mt-1 pb-3 text-left text-sm text-neutral-500"
-        >
-          Barcha {count} ta izohni ko‘rish
-        </button>
-      )}
       {share && <ShareModal reel={r} close={() => setShare(false)} />}
       {commentsOpen && (
         <ReelComments id={r.id} close={() => setCommentsOpen(false)} />

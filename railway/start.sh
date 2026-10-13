@@ -45,7 +45,7 @@ else
   WORKERS=1
 fi
 
-# Start Django first; nginx healthcheck will fail until Django is ready.
+# Start Django first, then wait until it is ready before raising nginx.
 gunicorn config.wsgi:application \
   --bind 127.0.0.1:8000 \
   --worker-class gthread \
@@ -65,6 +65,21 @@ cleanup() {
   wait "$GUNICORN_PID" 2>/dev/null || true
 }
 trap cleanup INT TERM EXIT
+
+READY_TIMEOUT=60
+READY_CHECKED=0
+while [ "$READY_CHECKED" -lt "$READY_TIMEOUT" ]; do
+  if python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/', timeout=2).read()" >/dev/null 2>&1; then
+    break
+  fi
+  READY_CHECKED=$((READY_CHECKED + 1))
+  sleep 1
+done
+
+if ! python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/', timeout=2).read()" >/dev/null 2>&1; then
+  echo "[Bon-Bon] ERROR: Django did not become healthy within ${READY_TIMEOUT}s. Exiting." >&2
+  exit 1
+fi
 
 # Let nginx be the public process and keep the container alive.
 envsubst '${PORT}' < /etc/nginx/nginx.conf.template > /etc/nginx/conf.d/default.conf
