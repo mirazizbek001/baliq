@@ -36,7 +36,34 @@ else
   echo "[Bon-Bon] Database: Temporary SQLite (${INSTA_KIDS_DATA_PATH})"
 fi
 
-python manage.py migrate --noinput
+MIGRATE_OK=0
+if python manage.py migrate --noinput; then
+  MIGRATE_OK=1
+else
+  if [ -n "${DATABASE_URL:-}" ]; then
+    echo "[Bon-Bon] WARNING: PostgreSQL migration failed or the database is not ready. Falling back to SQLite for this boot." >&2
+    unset DATABASE_URL
+    if [ -n "${RAILWAY_VOLUME_MOUNT_PATH:-}" ] && [ -d "$RAILWAY_VOLUME_MOUNT_PATH" ] && [ -w "$RAILWAY_VOLUME_MOUNT_PATH" ]; then
+      export RAILWAY_VOLUME_MOUNT_PATH="$RAILWAY_VOLUME_MOUNT_PATH"
+      mkdir -p "$RAILWAY_VOLUME_MOUNT_PATH/media"
+      if [ ! -f "$RAILWAY_VOLUME_MOUNT_PATH/db.sqlite3" ] && [ -f /app/db.sqlite3 ]; then
+        cp /app/db.sqlite3 "$RAILWAY_VOLUME_MOUNT_PATH/db.sqlite3"
+      fi
+    else
+      VOLUME_PATH="${INSTA_KIDS_DATA_PATH:-/tmp/instakids-data}"
+      mkdir -p "$VOLUME_PATH/media"
+      export INSTA_KIDS_DATA_PATH="$VOLUME_PATH"
+    fi
+    if python manage.py migrate --noinput; then
+      MIGRATE_OK=1
+    fi
+  fi
+fi
+
+if [ "$MIGRATE_OK" -ne 1 ]; then
+  echo "[Bon-Bon] ERROR: Django migrations failed even after attempting fallback database setup." >&2
+  exit 1
+fi
 
 # SQLite is kept to one worker to avoid multi-process write locks.
 if [ -n "${DATABASE_URL:-}" ]; then
