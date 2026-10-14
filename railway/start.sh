@@ -3,13 +3,20 @@ set -eu
 
 : "${PORT:=8080}"
 
-# If DATABASE_URL is supplied, Django uses PostgreSQL instead.
+IS_RAILWAY=0
+if [ -n "${RAILWAY_ENVIRONMENT:-}${RAILWAY_PROJECT_ID:-}${RAILWAY_SERVICE_ID:-}" ]; then
+  IS_RAILWAY=1
+fi
+
 if [ -z "${DATABASE_URL:-}" ]; then
   if [ -n "${RAILWAY_VOLUME_MOUNT_PATH:-}" ]; then
     VOLUME_PATH="$RAILWAY_VOLUME_MOUNT_PATH"
     if [ ! -d "$VOLUME_PATH" ] || [ ! -w "$VOLUME_PATH" ]; then
-      echo "[Bon-Bon] WARNING: Railway Volume mavjud emas yoki yozish uchun ruxsat yo'q: $VOLUME_PATH" >&2
-      echo "[Bon-Bon] WARNING: Temporary SQLite fallback ishlatiladi." >&2
+      if [ "$IS_RAILWAY" -eq 1 ]; then
+        echo "[Bon-Bon] ERROR: Railway Volume mavjud emas yoki yozish uchun ruxsat yo'q: $VOLUME_PATH" >&2
+        exit 1
+      fi
+      echo "[Bon-Bon] WARNING: Volume mavjud emas yoki yozish uchun ruxsat yo'q: $VOLUME_PATH. Lokal vaqtinchalik SQLite ishlatiladi." >&2
       VOLUME_PATH="${INSTA_KIDS_DATA_PATH:-/tmp/instakids-data}"
     else
       export RAILWAY_VOLUME_MOUNT_PATH="$VOLUME_PATH"
@@ -20,10 +27,13 @@ if [ -z "${DATABASE_URL:-}" ]; then
       fi
     fi
   else
+    if [ "$IS_RAILWAY" -eq 1 ]; then
+      echo "[Bon-Bon] ERROR: DATABASE_URL topilmadi. Railway web service Variables bo'limida PostgreSQL DATABASE_URL qiymatini ulang yoki Volume'ni /data ga mount qiling." >&2
+      exit 1
+    fi
     VOLUME_PATH="${INSTA_KIDS_DATA_PATH:-/tmp/instakids-data}"
     mkdir -p "$VOLUME_PATH/media"
-    echo "[Bon-Bon] WARNING: DATABASE_URL and Railway Volume are not configured. Falling back to temporary SQLite."
-    echo "[Bon-Bon] WARNING: Attach PostgreSQL or a mounted Volume for persistent data in production."
+    echo "[Bon-Bon] WARNING: PostgreSQL yoki doimiy Volume ulanmagan. Lokal vaqtinchalik SQLite ishlatiladi." >&2
     export INSTA_KIDS_DATA_PATH="$VOLUME_PATH"
   fi
 fi
@@ -36,32 +46,10 @@ else
   echo "[Bon-Bon] Database: Temporary SQLite (${INSTA_KIDS_DATA_PATH})"
 fi
 
-MIGRATE_OK=0
 if python manage.py migrate --noinput; then
-  MIGRATE_OK=1
+  :
 else
-  if [ -n "${DATABASE_URL:-}" ]; then
-    echo "[Bon-Bon] WARNING: PostgreSQL migration failed or the database is not ready. Falling back to SQLite for this boot." >&2
-    unset DATABASE_URL
-    if [ -n "${RAILWAY_VOLUME_MOUNT_PATH:-}" ] && [ -d "$RAILWAY_VOLUME_MOUNT_PATH" ] && [ -w "$RAILWAY_VOLUME_MOUNT_PATH" ]; then
-      export RAILWAY_VOLUME_MOUNT_PATH="$RAILWAY_VOLUME_MOUNT_PATH"
-      mkdir -p "$RAILWAY_VOLUME_MOUNT_PATH/media"
-      if [ ! -f "$RAILWAY_VOLUME_MOUNT_PATH/db.sqlite3" ] && [ -f /app/db.sqlite3 ]; then
-        cp /app/db.sqlite3 "$RAILWAY_VOLUME_MOUNT_PATH/db.sqlite3"
-      fi
-    else
-      VOLUME_PATH="${INSTA_KIDS_DATA_PATH:-/tmp/instakids-data}"
-      mkdir -p "$VOLUME_PATH/media"
-      export INSTA_KIDS_DATA_PATH="$VOLUME_PATH"
-    fi
-    if python manage.py migrate --noinput; then
-      MIGRATE_OK=1
-    fi
-  fi
-fi
-
-if [ "$MIGRATE_OK" -ne 1 ]; then
-  echo "[Bon-Bon] ERROR: Django migrations failed even after attempting fallback database setup." >&2
+  echo "[Bon-Bon] ERROR: Database migration failed. Server will not start or switch to another database; check DATABASE_URL connectivity and PostgreSQL storage." >&2
   exit 1
 fi
 
@@ -96,14 +84,14 @@ trap cleanup INT TERM EXIT
 READY_TIMEOUT=60
 READY_CHECKED=0
 while [ "$READY_CHECKED" -lt "$READY_TIMEOUT" ]; do
-  if python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/', timeout=2).read()" >/dev/null 2>&1; then
+  if python -c "import urllib.request; request=urllib.request.Request('http://127.0.0.1:8000/health/', headers={'X-Forwarded-Proto': 'https'}); urllib.request.urlopen(request, timeout=2).read()" >/dev/null 2>&1; then
     break
   fi
   READY_CHECKED=$((READY_CHECKED + 1))
   sleep 1
 done
 
-if ! python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/', timeout=2).read()" >/dev/null 2>&1; then
+if ! python -c "import urllib.request; request=urllib.request.Request('http://127.0.0.1:8000/health/', headers={'X-Forwarded-Proto': 'https'}); urllib.request.urlopen(request, timeout=2).read()" >/dev/null 2>&1; then
   echo "[Bon-Bon] ERROR: Django did not become healthy within ${READY_TIMEOUT}s. Exiting." >&2
   exit 1
 fi

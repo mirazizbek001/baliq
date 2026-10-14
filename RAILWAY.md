@@ -7,10 +7,10 @@ Bu versiya frontend va backendni **bitta Railway service** ichida ishlatadi. `/p
 1. GitHub repo root'ini Railway'ga ulang.
 2. Root Directory'ni o‘zgartirmang.
 3. Root'dagi `Dockerfile` avtomatik ishlatiladi.
-4. **PostgreSQL tavsiya qilinadi:** Railway loyihasiga PostgreSQL qo‘shib, web service Variables bo‘limida uning `DATABASE_URL` qiymatini ulang.
+4. **PostgreSQL tavsiya qilinadi:** Railway loyihasiga PostgreSQL qo‘shib, web service Variables bo‘limida `DATABASE_URL` uchun PostgreSQL service'dan reference variable (`${{Postgres.DATABASE_URL}}`) ulang.
 5. Muqobil: Railway Volume yarating va web service'ga `/data` manziliga ulang.
 
-Railway production'da PostgreSQL yoki Volume sozlanmagan bo‘lsa, ilova vaqtinchalik SQLite fallback bilan ishlaydi. Bu 502 ni oldini olish uchun kerak, lekin ma'lumotlar vaqtincha saqlanadi; productionda doimiy ma'lumotlar uchun PostgreSQL yoki Volume qo‘shish tavsiya etiladi.
+Railway'da PostgreSQL `DATABASE_URL` yoki yozish mumkin bo‘lgan `/data` Volume bo‘lmasa, startup xato bilan to‘xtaydi. PostgreSQL ulanishi yoki migratsiyasi ishlamasa, ilova boshqa bazaga (SQLite'ga) yashirincha o‘tmaydi. Bu bo‘sh/vaqtinchalik bazaga yozib, ma'lumotlar yo‘qolishining oldini oladi.
 
 ## 2. Variables
 
@@ -20,7 +20,9 @@ SECRET_KEY=<uzun-maxfiy-key>
 DATABASE_URL=${{Postgres.DATABASE_URL}}
 ```
 
-`DATABASE_URL` PostgreSQL xizmatiga Railway reference variable sifatida ulangan bo‘lishi kerak. PostgreSQL o‘rniga Volume ishlatsangiz `DATABASE_URL` shart emas, lekin Volume mount path `/data` bo‘lsin.
+`DATABASE_URL` web service Variables bo‘limida PostgreSQL service'ga Railway reference variable orqali ulangan bo‘lishi kerak. PostgreSQL o‘rniga Volume ishlatsangiz `DATABASE_URL` shart emas, lekin Volume mount path `/data` bo‘lsin.
+
+Deploy logida `DATABASE_URL topilmadi` chiqsa, link'i PostgreSQL service'idagi `DATABASE_URL` variable'iga qarab turganini tekshiring. PostgreSQL logida `No space left on device` chiqsa, PostgreSQL service volume'i to‘lgan: Railway'da volume storage'ni oshiring yoki backup'dan tiklang. Volume'ni o‘chirib qayta yaratish ichidagi ma'lumotlarni yo‘qotishi mumkin.
 
 Ixtiyoriy:
 
