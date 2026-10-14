@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 
 from pathlib import Path
 import os
+from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -50,6 +51,23 @@ DEBUG = os.getenv('DEBUG', '0').lower() in {'1', 'true', 'yes', 'on'}
 
 def _csv(name, default=''):
     return [item.strip() for item in os.getenv(name, default).split(',') if item.strip()]
+
+
+TURN_URLS = _csv('TURN_URLS')
+TURN_USERNAME = os.getenv('TURN_USERNAME', '').strip()
+TURN_CREDENTIAL = os.getenv('TURN_CREDENTIAL', '').strip()
+if bool(TURN_USERNAME) != bool(TURN_CREDENTIAL):
+    raise ImproperlyConfigured('TURN_USERNAME and TURN_CREDENTIAL must be configured together.')
+if (TURN_USERNAME or TURN_CREDENTIAL) and not TURN_URLS:
+    raise ImproperlyConfigured('TURN_URLS is required when TURN credentials are configured.')
+
+CALL_ICE_SERVERS = [{'urls': 'stun:stun.l.google.com:19302'}]
+if TURN_URLS:
+    turn_server = {'urls': TURN_URLS}
+    if TURN_USERNAME:
+        turn_server['username'] = TURN_USERNAME
+        turn_server['credential'] = TURN_CREDENTIAL
+    CALL_ICE_SERVERS.append(turn_server)
 
 
 RAILWAY_PUBLIC_DOMAIN = os.getenv('RAILWAY_PUBLIC_DOMAIN', '').strip()

@@ -65,6 +65,20 @@ class RegistrationTests(APITestCase):
 		self.assertEqual(response.status_code, 200)
 		self.assertFalse(response.data['authenticated'])
 
+	@override_settings(CALL_ICE_SERVERS=[
+		{'urls': 'stun:stun.l.google.com:19302'},
+		{'urls': ['turn:turn.example.com:3478', 'turns:turn.example.com:443'], 'username': 'turn-user', 'credential': 'turn-secret'},
+	])
+	def test_call_ice_servers_are_available_to_authenticated_users_only(self):
+		response = self.client.get('/plat/calls/ice-servers/')
+		self.assertEqual(response.status_code, 403)
+
+		user = User.objects.create_user(username='call_user', password='password123')
+		self.client.force_login(user)
+		response = self.client.get('/plat/calls/ice-servers/')
+		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response.data['iceServers'], settings.CALL_ICE_SERVERS)
+
 	def test_csrf_endpoint_sets_token_cookie(self):
 		response = self.client.get('/plat/csrf/')
 

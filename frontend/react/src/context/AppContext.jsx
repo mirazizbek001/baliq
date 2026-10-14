@@ -524,12 +524,20 @@ export function AppProvider({ children }) {
     setCallRemoteStream(null);
     updateCall(null);
   };
-  const createCallPeerConnection = (session) => {
+  const createCallPeerConnection = async (session) => {
     if (!("RTCPeerConnection" in window)) {
       throw new Error("Bu brauzer qo‘ng‘iroq uchun WebRTCni qo‘llab-quvvatlamaydi.");
     }
+    const response = await fetch("/plat/calls/ice-servers/", {
+      credentials: "same-origin",
+      cache: "no-store",
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok || !Array.isArray(result.iceServers)) {
+      throw new Error(result.error || "Qo‘ng‘iroq serverlari sozlamasi olinmadi.");
+    }
     const connection = new RTCPeerConnection({
-      iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+      iceServers: result.iceServers,
     });
     callPeerConnectionRef.current = connection;
     callLocalStreamRef.current
@@ -583,7 +591,7 @@ export function AppProvider({ children }) {
   };
   const answerCallOffer = async (session, description) => {
     const connection =
-      callPeerConnectionRef.current || createCallPeerConnection(session);
+      callPeerConnectionRef.current || await createCallPeerConnection(session);
     await connection.setRemoteDescription(
       new RTCSessionDescription(description),
     );
@@ -618,7 +626,7 @@ export function AppProvider({ children }) {
         muted: false,
         cameraOff: false,
       });
-      createCallPeerConnection(session);
+      await createCallPeerConnection(session);
       await postCallSignal(session, "accept");
       if (pendingCallOfferRef.current) {
         const offer = pendingCallOfferRef.current;
@@ -1319,7 +1327,7 @@ export function AppProvider({ children }) {
       callLocalStreamRef.current = stream;
       setCallLocalStream(stream);
       updateCall(session);
-      const connection = createCallPeerConnection(session);
+      const connection = await createCallPeerConnection(session);
       await postCallSignal(session, "invite", { mode });
       const offer = await connection.createOffer();
       await connection.setLocalDescription(offer);

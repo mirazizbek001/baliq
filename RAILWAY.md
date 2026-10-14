@@ -28,7 +28,19 @@ Ixtiyoriy:
 GOOGLE_CLIENT_ID=<Google OAuth client id>
 ```
 
-## 3. Health check
+## 3. Qo‘ng‘iroqlar (TURN)
+
+Audio/video qo‘ng‘iroqlar hozirda STUN bilan ishlaydi; ayrim mobil tarmoqlar va NAT sozlamalarida ulanish uchun tashqi TURN provider kerak bo‘ladi. Railway TURN server bermaydi. Provider ma'lumotlarini Railway Variables bo‘limiga kiriting:
+
+```text
+TURN_URLS=turn:turn.example.com:3478,turns:turn.example.com:443
+TURN_USERNAME=<provider username>
+TURN_CREDENTIAL=<provider credential>
+```
+
+`TURN_URLS` vergul bilan ajratilgan bir yoki bir nechta `turn:`/`turns:` URL qabul qiladi. TURN sozlanmasa, ilova avvalgidek faqat Google STUN serveridan foydalanadi; bu barcha tarmoqlarda ishlashini kafolatlamaydi. TURN ma'lumotlari faqat tizimga kirgan foydalanuvchilarga beriladi, ammo WebRTC ishlashi uchun brauzerda ko‘rinishi shart. Provider cheklangan yoki muddati qisqa credential va trafik limitlarini qo‘llash tavsiya etiladi.
+
+## 4. Health check
 
 ```text
 https://SIZNING-DOMENINGIZ/health
@@ -42,7 +54,7 @@ Javobda:
 
 bo‘lishi kerak.
 
-## 4. Admin akkaunt yaratish
+## 5. Admin akkaunt yaratish
 
 Railway deploy qilingan service Console’da:
 
@@ -56,7 +68,7 @@ Ko‘rsatilgan database PostgreSQL bo‘lishi yoki `/data/db.sqlite3` Volume ich
 
 Ilova ichidagi boshqaruv paneli `/admin` manzilida, Django’ning texnik admin paneli esa `/django-admin/` manzilida ochiladi.
 
-## 5. Muhim
+## 6. Muhim
 
 - `BACKEND_URL` kerak emas.
 - Frontend va backend bir xil domen orqali ishlaydi.

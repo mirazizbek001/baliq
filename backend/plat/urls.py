@@ -1,6 +1,6 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
-from .views import access_status, google_login, public_config, block_user, call_signals, change_password, change_username, csrf_token, delete_account, session_status, delete_chat, delete_user, home, login, login_activity, logout, moderation_queue, moderation_review, platform_settings, presence_status, register, report_message, report_reel, social_fast_action, social_state, social_updates, users
+from .views import access_status, google_login, public_config, block_user, call_ice_servers, call_signals, change_password, change_username, csrf_token, delete_account, session_status, delete_chat, delete_user, home, login, login_activity, logout, moderation_queue, moderation_review, platform_settings, presence_status, register, report_message, report_reel, social_fast_action, social_state, social_updates, users
 
 router = DefaultRouter()
 # router.register("tovar", basename="tovar")
@@ -22,6 +22,7 @@ urlpatterns = [path("", home, name="home"),
               path("users/<str:username>/block/", block_user, name="block-user"),
               path("chats/<str:username>/", delete_chat, name="delete-chat"),
               path("calls/signals/", call_signals, name="call-signals"),
+              path("calls/ice-servers/", call_ice_servers, name="call-ice-servers"),
               path("presence/", presence_status, name="presence-status"),
               path("users/", users, name="users"),
               path("change-password/", change_password, name="change-password"),

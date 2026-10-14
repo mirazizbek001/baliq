@@ -1312,6 +1312,13 @@ def call_signals(request):
 @api_view(['GET'])
 @authentication_classes([SessionAuthentication])
 @permission_classes([IsAuthenticated])
+def call_ice_servers(request):
+	return Response({'iceServers': django_settings.CALL_ICE_SERVERS})
+
+
+@api_view(['GET'])
+@authentication_classes([SessionAuthentication])
+@permission_classes([IsAuthenticated])
 def presence_status(request):
 	now = timezone.now()
 	UserPresence.objects.update_or_create(user=request.user, defaults={'last_seen': now})
